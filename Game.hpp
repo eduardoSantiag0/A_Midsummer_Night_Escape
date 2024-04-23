@@ -20,6 +20,7 @@ private:
 
     float currentDeltaJump;
     float lastDeltaJump;
+    float maxJumpHeight;
 
 
     Player m_player;

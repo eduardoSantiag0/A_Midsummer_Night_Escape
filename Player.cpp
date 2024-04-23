@@ -2,42 +2,18 @@
 #include "TextureManager.hpp"
 #include <iostream>
 
-//// float myGravity = 0.2f;
-//// float maxFallSpeed = -5.0f;
-//// float myJumpForce = 5.0f;
-//// float curJumpForce = 0.0f;
-//// float deltaTime; (Time Between frames)
-
-//// bool m_jumping = false;
-
-//// if(press key){
-////    m_jumping = true;
-////    curJumpForce = myJumpForce;
-//// }
-
-// if(m_jumping){
-//    player.y += curJumpForce * deltaTime;
-   
-//    if(curJumpForce > maxFallSpeed){
-//       myJumpForce -= myGravity * deltaTime;
-//    }else{
-//       curJumpForce = maxFallSpeed;
-//    }
-
-////    if(Hit Ground){
-////       m_jumping = false;
-////    }
-// }
-
 Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false)
 {
-    float myGravity = 0.2f;
-    float maxFallSpeed = -5.0f;
-    float myJumpForce = 5.0f;
-    float curJumpForce = 0.0f;
-    float deltaTime; 
+    
+    float m_gravity = 0.2f;
+
     m_player_rect = {300, pos_chao, 100, 170};
+
+    m_pos_chao = pos_chao;
+
     std::cout << "Puck Criado!\n";
+    maxJumpHeight = m_pos_chao - m_player_rect.h;
+
 }
 
 void Player::draw (SDL_Renderer* m_renderer) 
@@ -56,31 +32,33 @@ void Player::draw (SDL_Renderer* m_renderer)
     // SDL_RenderCopy(m_renderer, m_playerTexture, NULL, &m_player_rect);
 }
 
-void Player::jump (float deltaTime) 
+void Player::jump () 
 {  
-    m_player_rect.y += curJumpForce * deltaTime;
-   
-    if(curJumpForce > maxFallSpeed){
-       myJumpForce -= myGravity * deltaTime;
-    }else{
-       curJumpForce = maxFallSpeed;
+    std::cout << "Jump!\n";
+
+    if (isJumping) {
+
+        if (m_GoDown) {
+            m_player_rect.y += 10;
+        } else {
+            m_player_rect.y -= 10;
+        } 
+
+        // 610 - 170 == 440
+        if (m_player_rect.y <= maxJumpHeight) {
+            m_GoDown = true;
+        }
+
+        if (m_player_rect.y >= m_pos_chao) {
+            isJumping = false;
+            m_GoDown = false;
+
+        }
+
     }
-
 }
 
-void Player::setHeight() 
-{}
 
-
-
-float Player::getCurJumpForce () const
-{
-    return curJumpForce;
-}
-void Player::setmyJumpForce (float curJumpForce) 
-{
-    myJumpForce = curJumpForce;
-}
 
 SDL_Rect Player::getRect() const 
 {

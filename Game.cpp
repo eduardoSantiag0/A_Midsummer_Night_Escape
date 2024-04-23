@@ -44,9 +44,11 @@ Game::Game ()
 
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     
-    m_ground = {0,m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
+    m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
 
     lastDeltaJump = 0.0;
+
+    maxJumpHeight = m_player.getRect().h * 2;
 
 }
 
@@ -64,9 +66,10 @@ void Game::run() {
 
 
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
-    std::cout << chaoPlayer;
+    std::cout << "RECEBA CHAO: " << chaoPlayer;
 
     bool isRunning = true;
+
 
     while (isRunning)
     {
@@ -82,11 +85,14 @@ void Game::run() {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_SPACE:
-                    if (currentDeltaJump - lastDeltaJump >= jumpInterval) {
-                        m_player.isJumping = true;
-                        m_player.setmyJumpForce (m_player.getCurJumpForce()); 
-                        lastDeltaJump = SDL_GetTicks();
-                    }
+                    m_player.isJumping = true;
+                    // if (currentDeltaJump - lastDeltaJump >= jumpInterval 
+                        // && m_player.isJumping == false) 
+                        // {
+                            // m_player.isJumping = true;
+                            // std::cout << "Jump Activated\n";
+                            // lastDeltaJump = SDL_GetTicks();
+                        // }
                     break;
                 default:
                     break;
@@ -103,20 +109,16 @@ void Game::run() {
 
         draw(m_renderer);
 
-        float test = 70.0;
         if (m_player.isJumping) {
-            m_player.jump(test);
+            m_player.jump();
         }
 
-        if(m_player.getRect().h  == chaoPlayer) {
-            m_player.isJumping = false;
-        }
 
         // verColisoes();
         SDL_RenderPresent(m_renderer);
         frameTime = SDL_GetTicks() - frameStart;
 
-        std::cout << "\nPosicao do quadrado: " << m_player.getRect().y;
+        // std::cout << "\nPosicao do quadrado: " << m_player.getRect().y << "\n";
         if (frameTime < targetFrameTime) 
             SDL_Delay(targetFrameTime - frameTime);
         
@@ -176,7 +178,7 @@ bool Game::checkColisao(SDL_Rect a, SDL_Rect b) {
 }
 
 
-SDL_Texture*  Game::loadBackground(const char* filepath, SDL_Renderer* renderer) 
+SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer) 
 {
     SDL_Texture* tex = TextureManager::LoadTexture(filepath, renderer);
     return tex;
