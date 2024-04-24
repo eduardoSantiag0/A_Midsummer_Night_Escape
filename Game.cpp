@@ -13,7 +13,7 @@
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game () 
-    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170), teste (1920, 700)
+    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170), spawnTimeInterval(1200)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -49,7 +49,7 @@ Game::Game ()
 
     maxJumpHeight = m_player.getRect().h * 2;
 
-    // teste = Obstacles(m_WIDTH_WINDOW, m_player.getRect().h / 2 );
+    std::vector<Obstacles> vetorObstacles;
 
 }
 
@@ -64,17 +64,20 @@ void Game::run() {
     const int targetFrameTime = 1000 / SCREEN_FPS;
     Uint32 frameStart;
     int frameTime;
+    Uint32 currentSpawnTime;
 
 
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
-    std::cout << "RECEBA CHAO: " << chaoPlayer;
+    // std::cout << "RECEBA CHAO: " << chaoPlayer;
 
     bool isRunning = true;
 
 
+    lastTimeSpawned = SDL_GetTicks();
     while (isRunning)
     {
         frameStart = SDL_GetTicks();
+
         currentDeltaJump = SDL_GetTicks();
         SDL_Event e;
 
@@ -109,13 +112,29 @@ void Game::run() {
 
 
         draw(m_renderer);
-        teste.move();
 
         if (m_player.isJumping) 
             m_player.jump();
 
 
-        // verColisoes();
+        currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
+        if (currentSpawnTime > spawnTimeInterval) 
+        {
+            std::cout << "Criado!";
+            Obstacles i (m_WIDTH_WINDOW, 700);
+            vetorObstacles.push_back(i);
+            lastTimeSpawned = SDL_GetTicks();
+            currentSpawnTime = 0;
+        }
+
+        std::cout << "Tempo currentSpawn" << currentDeltaJump << "\n";
+
+        for (auto &obstacle : vetorObstacles)
+        {
+            obstacle.move();
+        }
+
+        verColisoes();
         SDL_RenderPresent(m_renderer);
         frameTime = SDL_GetTicks() - frameStart;
 
@@ -147,8 +166,11 @@ void Game::draw(SDL_Renderer* m_render)
 
     m_player.draw(m_render);
 
-    teste.draw(m_render);
-
+    // Draw obstacles
+    for (auto &obstacle : vetorObstacles)
+    {
+        obstacle.draw(m_render);
+    }
 
 }
 
@@ -198,4 +220,26 @@ void Game::loadGround (SDL_Renderer* m_render)
 {
     SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
     SDL_RenderFillRect (m_renderer, &m_ground);
+}
+
+void Game::verColisoes() 
+{
+    // Create an iterator to iterate through the vector
+    auto it = vetorObstacles.begin();
+
+    // Iterate through the vector
+    while (it != vetorObstacles.end())
+    {
+        // Check collision between obstacle and player
+        if (checkColisao(it->getRect(), m_player.getRect())) 
+        {
+            // Erase the obstacle if collision is detected
+            it = vetorObstacles.erase(it);
+        }
+        else 
+        {
+            // Move to the next obstacle
+            ++it;
+        }
+    }
 }

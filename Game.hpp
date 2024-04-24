@@ -15,7 +15,6 @@ public:
     void loadGround (SDL_Renderer* m_renderer);
 
     std::vector<Obstacles> vetorObstacles;
-    Obstacles teste;
 
     void verColisoes();
     
@@ -30,6 +29,9 @@ private:
     float lastDeltaJump;
     float maxJumpHeight;
 
+    Uint32 lastTimeSpawned;
+    Uint32 startSpawnTime;
+    Uint32 spawnTimeInterval; 
 
     Player m_player;
 

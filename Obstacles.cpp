@@ -6,7 +6,7 @@ Obstacles::Obstacles(int posX, int posY) : m_speed (10), m_obstacleTexture(nullp
 {
     // x, y, w, h
     std::cout << "\n";
-    SDL_Rect m_obstacle = {posX, posY, 40, 40};
+    m_obstacle = {posX, posY, 40, 40};
     std::cout << "Obstaculo Criado!\n";
 
 } 
@@ -14,7 +14,7 @@ Obstacles::Obstacles(int posX, int posY) : m_speed (10), m_obstacleTexture(nullp
 void Obstacles::move() 
 {
     m_obstacle.x -= m_speed;
-    std::cout << "Obstaculo Posicao X: " << m_obstacle.x << "\n";
+    // std::cout << "Obstaculo Posicao X: " << m_obstacle.x << "\n";
     if (m_obstacle.x <= 0) 
         m_acive = false;
 
@@ -22,7 +22,7 @@ void Obstacles::move()
 
 void Obstacles::draw (SDL_Renderer* m_renderer) 
 {
-    SDL_SetRenderDrawColor(m_renderer, 250, 32, 15, 255); // Vermelho
+    SDL_SetRenderDrawColor(m_renderer, 240, 15, 94, 255); // Verde
     SDL_RenderFillRect (m_renderer, &m_obstacle);
 
     //! Quando tiver sprites

@@ -34,7 +34,6 @@ void Player::draw (SDL_Renderer* m_renderer)
 
 void Player::jump () 
 {  
-    std::cout << "Jump!\n";
 
     if (isJumping) {
 
