@@ -13,7 +13,7 @@
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game () 
-    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170)
+    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170), teste (1920, 700)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -38,7 +38,6 @@ Game::Game ()
         std::cout << "Nao foi possivel abrir o icone\n";
         return;
     }
-
     SDL_SetWindowIcon(m_window, icon);
     SDL_FreeSurface(icon);
 
@@ -49,6 +48,8 @@ Game::Game ()
     lastDeltaJump = 0.0;
 
     maxJumpHeight = m_player.getRect().h * 2;
+
+    // teste = Obstacles(m_WIDTH_WINDOW, m_player.getRect().h / 2 );
 
 }
 
@@ -108,10 +109,10 @@ void Game::run() {
 
 
         draw(m_renderer);
+        teste.move();
 
-        if (m_player.isJumping) {
+        if (m_player.isJumping) 
             m_player.jump();
-        }
 
 
         // verColisoes();
@@ -145,6 +146,8 @@ void Game::draw(SDL_Renderer* m_render)
 
 
     m_player.draw(m_render);
+
+    teste.draw(m_render);
 
 
 }

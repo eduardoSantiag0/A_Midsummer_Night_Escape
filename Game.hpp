@@ -1,5 +1,8 @@
 #include "SDL2/SDL.h"
 #include "Player.hpp"
+#include "Obstacles.hpp"
+#include <vector>
+
 
 class Game 
 {
@@ -10,6 +13,11 @@ public:
     void run();
     void draw(SDL_Renderer* m_renderer);
     void loadGround (SDL_Renderer* m_renderer);
+
+    std::vector<Obstacles> vetorObstacles;
+    Obstacles teste;
+
+    void verColisoes();
     
 private:
     SDL_Window* m_window;

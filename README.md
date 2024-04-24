@@ -23,6 +23,6 @@ The project is a game set in the fictional world of William Shakespeare's "**A M
 
 - **Puck's Challenge :** The enchanted forest becomes a constantly changing labyrinth, filled with magical obstacles and treacherous terrain. Puck must navigate this unpredictable realm, avoiding traps and overcoming magical obstacles to survive Titania's wrath.
 
-## Gameplay:
+## Gameplay :
 As the player takes on the role of Puck, they must navigate through the chaotic and ever-changing enchanted forest. The game offers a fast-paced and challenging experience, where quick reflexes and strategic decision-making are essential for survival.
 - Use the SPACEBAR to jump and avoid getting hit.

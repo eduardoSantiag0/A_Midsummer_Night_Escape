@@ -2,6 +2,14 @@
 
 class Player 
 {
+private:
+    SDL_Rect m_player_rect;
+    int m_pos_chao;
+    int maxJumpHeight;
+    float m_gravity;
+
+    SDL_Texture* m_playerTexture;
+
 public:
     Player(int pos_chao);
     void jump();
@@ -12,12 +20,4 @@ public:
     SDL_Rect getRect() const;
     SDL_Texture* getTexture (const char* filepath, SDL_Renderer* renderer);
 
-
-private:
-    SDL_Rect m_player_rect;
-    int m_pos_chao;
-    int maxJumpHeight;
-    float m_gravity;
-
-    SDL_Texture* m_playerTexture;
 };
