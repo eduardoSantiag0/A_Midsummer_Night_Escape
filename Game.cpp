@@ -2,7 +2,7 @@
 #include <iostream>
 #include "SDL2/SDL.h"
 #include "TextureManager.hpp"
-
+#include <time.h>
 
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
@@ -13,7 +13,7 @@
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game () 
-    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170), spawnTimeInterval(1200)
+    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -41,15 +41,22 @@ Game::Game ()
     SDL_SetWindowIcon(m_window, icon);
     SDL_FreeSurface(icon);
 
+    
+    if (!TTF_Init()) {
+        std::cout << "Nao foi iniciar a biblioteca TTF\n";
+    }
+
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
 
-    lastDeltaJump = 0.0;
-
     maxJumpHeight = m_player.getRect().h * 2;
 
     std::vector<Obstacles> vetorObstacles;
+
+    srand(time(0));
+    // spawnTimeInterval = spawnTimeGenerator();
+    spawnTimeInterval = 1300;
 
 }
 
@@ -70,15 +77,15 @@ void Game::run() {
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
     // std::cout << "RECEBA CHAO: " << chaoPlayer;
 
-    bool isRunning = true;
+
+    bool m_isRunning = true;
 
 
     lastTimeSpawned = SDL_GetTicks();
-    while (isRunning)
+    while (m_isRunning)
     {
         frameStart = SDL_GetTicks();
 
-        currentDeltaJump = SDL_GetTicks();
         SDL_Event e;
 
         while (SDL_PollEvent(&e))
@@ -90,20 +97,13 @@ void Game::run() {
                 {
                 case SDLK_SPACE:
                     m_player.isJumping = true;
-                    // if (currentDeltaJump - lastDeltaJump >= jumpInterval 
-                        // && m_player.isJumping == false) 
-                        // {
-                            // m_player.isJumping = true;
-                            // std::cout << "Jump Activated\n";
-                            // lastDeltaJump = SDL_GetTicks();
-                        // }
                     break;
                 default:
                     break;
                 }
                 break;
             case SDL_QUIT: 
-                isRunning = false;
+                m_isRunning = false;
                 break;
             default:
                 break;
@@ -125,9 +125,10 @@ void Game::run() {
             vetorObstacles.push_back(i);
             lastTimeSpawned = SDL_GetTicks();
             currentSpawnTime = 0;
+            spawnTimeInterval = spawnTimeGenerator();
         }
 
-        std::cout << "Tempo currentSpawn" << currentDeltaJump << "\n";
+        std::cout << "Intervalo: " << spawnTimeInterval << "\n";
 
         for (auto &obstacle : vetorObstacles)
         {
@@ -212,7 +213,7 @@ SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer)
 
 void Game::GameOver() 
 {
-    m_isRuning = false;
+    m_isRunning = false;
 }
 
 
@@ -222,24 +223,30 @@ void Game::loadGround (SDL_Renderer* m_render)
     SDL_RenderFillRect (m_renderer, &m_ground);
 }
 
+
 void Game::verColisoes() 
 {
-    // Create an iterator to iterate through the vector
     auto it = vetorObstacles.begin();
 
-    // Iterate through the vector
     while (it != vetorObstacles.end())
     {
-        // Check collision between obstacle and player
-        if (checkColisao(it->getRect(), m_player.getRect())) 
+        if (checkColisao(it->getRect(), m_player.getRect()) || it->getRect().x == 0) 
         {
-            // Erase the obstacle if collision is detected
             it = vetorObstacles.erase(it);
         }
         else 
         {
-            // Move to the next obstacle
             ++it;
         }
     }
+}
+
+Uint32 Game::spawnTimeGenerator() 
+{
+    Uint32 randomTime = rand() % 1900;
+    Uint32 minSpawnTime = 1300;
+
+    randomTime += minSpawnTime;
+
+    return randomTime; 
 }

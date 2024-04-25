@@ -2,7 +2,7 @@
 #include "Obstacles.hpp"
 
 
-Obstacles::Obstacles(int posX, int posY) : m_speed (10), m_obstacleTexture(nullptr), m_acive (true)
+Obstacles::Obstacles(int posX, int posY) : m_speed (20), m_obstacleTexture(nullptr), m_acive (true)
 {
     // x, y, w, h
     std::cout << "\n";
