@@ -3,6 +3,7 @@
 #include "SDL2/SDL.h"
 #include "TextureManager.hpp"
 #include <time.h>
+#include <algorithm>
 
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
@@ -13,7 +14,11 @@
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game () 
-    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), background_texture(nullptr), m_groundHeight(300), m_player(780 - 170)
+    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), 
+    background_texture(nullptr), m_groundHeight(300), 
+    m_player(780 - 170), m_score_player(0),
+    spawnTimeInterval(1300), 
+    m_startScreen (true), m_textTexture(nullptr), m_font(nullptr)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -47,20 +52,22 @@ Game::Game ()
     }
 
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
-    
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
-
     maxJumpHeight = m_player.getRect().h * 2;
 
     std::vector<Obstacles> vetorObstacles;
 
     srand(time(0));
-    // spawnTimeInterval = spawnTimeGenerator();
-    spawnTimeInterval = 1300;
+
+    m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 28);
+    if (m_font == nullptr) {
+        std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+    }
 
 }
 
 Game::~Game() {
+    TTF_Quit();
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -75,19 +82,15 @@ void Game::run() {
 
 
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
-    // std::cout << "RECEBA CHAO: " << chaoPlayer;
-
-
     bool m_isRunning = true;
 
 
-    lastTimeSpawned = SDL_GetTicks();
+    // lastTimeSpawned = SDL_GetTicks();
     while (m_isRunning)
     {
         frameStart = SDL_GetTicks();
 
         SDL_Event e;
-
         while (SDL_PollEvent(&e))
         {
             switch (e.type)
@@ -96,7 +99,14 @@ void Game::run() {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_SPACE:
-                    m_player.isJumping = true;
+
+                    if (m_startScreen) {
+                        m_startScreen = false;
+                        m_score_player = 0;
+                        spawnControllerDiminish = 0;
+                        lastTimeSpawned = SDL_GetTicks();
+                    }
+                    m_player.startJump();
                     break;
                 default:
                     break;
@@ -118,7 +128,7 @@ void Game::run() {
 
 
         currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
-        if (currentSpawnTime > spawnTimeInterval) 
+        if (currentSpawnTime > spawnTimeInterval && m_startScreen == false) 
         {
             std::cout << "Criado!";
             Obstacles i (m_WIDTH_WINDOW, 700);
@@ -128,7 +138,8 @@ void Game::run() {
             spawnTimeInterval = spawnTimeGenerator();
         }
 
-        std::cout << "Intervalo: " << spawnTimeInterval << "\n";
+        // std::cout << "Intervalo: " << spawnTimeInterval << "\n";
+        std::cout << "Score: " << m_score_player << "\n";
 
         for (auto &obstacle : vetorObstacles)
         {
@@ -140,8 +151,11 @@ void Game::run() {
         frameTime = SDL_GetTicks() - frameStart;
 
         // std::cout << "\nPosicao do quadrado: " << m_player.getRect().y << "\n";
-        if (frameTime < targetFrameTime) 
+        if (frameTime < targetFrameTime) {
             SDL_Delay(targetFrameTime - frameTime);
+            if (!m_startScreen)
+                m_score_player += 5;
+        }
         
         
     }
@@ -164,9 +178,11 @@ void Game::draw(SDL_Renderer* m_render)
 
     loadGround(m_render);
 
+    if (m_startScreen)
+        startScreen();
+
 
     m_player.draw(m_render);
-
     // Draw obstacles
     for (auto &obstacle : vetorObstacles)
     {
@@ -230,12 +246,10 @@ void Game::verColisoes()
 
     while (it != vetorObstacles.end())
     {
-        if (checkColisao(it->getRect(), m_player.getRect()) || it->getRect().x == 0) 
-        {
+        if (checkColisao(it->getRect(), m_player.getRect()) || it->getRect().x == 0) {
             it = vetorObstacles.erase(it);
         }
-        else 
-        {
+        else {
             ++it;
         }
     }
@@ -244,9 +258,62 @@ void Game::verColisoes()
 Uint32 Game::spawnTimeGenerator() 
 {
     Uint32 randomTime = rand() % 1900;
+    
     Uint32 minSpawnTime = 1300;
-
-    randomTime += minSpawnTime;
+    
+    spawnControllerDiminish += 40;
+    
+    randomTime = (randomTime - spawnControllerDiminish) + minSpawnTime;
 
     return randomTime; 
+}
+
+void Game::startScreen() 
+{
+    if (m_font == nullptr) {
+        std::cerr << "Font not loaded properly, cannot render start screen text." << std::endl;
+        return;
+    }
+    // Definindo a cor do texto
+    SDL_Color textColor = {0, 0, 0, 0};
+
+    // Carregando a fontefonteE:\ProjetosProgramming\myscripts\back-end\cpp\fuga_de_uma_noite_de_verao\src\fonts\light-arial.ttf
+    // TTF_Font* m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 28);
+    // if (font == nullptr) {
+    //     std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
+    //     return;
+    // }
+
+    // Renderizando o texto
+    SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Press SPACE to Start", textColor);
+    if (textSurface == nullptr) {
+        std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
+        TTF_CloseFont(m_font);
+        return;
+    }
+
+    // Criando a textura a partir da superfície
+    m_textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
+    // if (textTexture == nullptr) {
+    //     std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
+    //     SDL_FreeSurface(textSurface);
+    //     TTF_CloseFont(font);
+    //     return;
+    // }
+
+    // Definindo a posição e tamanho do texto
+    SDL_Rect textRect = {
+        m_WIDTH_WINDOW / 2 - textSurface->w / 2,
+        m_HEIGHT_WINDOW / 2 - textSurface->h / 2,
+        textSurface->w * 2,
+        textSurface->h * 2
+    };
+
+    SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &textRect);
+
+    //todo Liberando recursos
+    // SDL_DestroyTexture(textTexture);
+    // SDL_FreeSurface(textSurface);
+    // TTF_CloseFont(font);
+
 }

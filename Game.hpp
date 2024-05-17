@@ -2,6 +2,8 @@
 #include "Player.hpp"
 #include "Obstacles.hpp"
 #include <vector>
+#include <SDL2/SDL_ttf.h>
+
 
 
 class Game 
@@ -18,6 +20,7 @@ public:
 
     void verColisoes();
     Uint32 spawnTimeGenerator();
+    Uint32 spawnControllerDiminish;
 
     SDL_Texture* loadBackground(const char* filepath, SDL_Renderer* renderer);
     bool checkColisao(SDL_Rect a, SDL_Rect b);
@@ -30,6 +33,8 @@ private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
     bool m_isRunning;
+    bool m_startScreen;
+    
     int m_WIDTH_WINDOW;
     int m_HEIGHT_WINDOW;
 
@@ -47,5 +52,10 @@ private:
     
     SDL_Rect m_background;
     SDL_Texture* background_texture;
+
+    int  m_score_player;
+
+    SDL_Texture* m_textTexture;
+    TTF_Font* m_font;
 
 };
