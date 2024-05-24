@@ -51,6 +51,11 @@ Game::Game ()
         std::cout << "Nao foi iniciar a biblioteca TTF\n";
     }
 
+    
+    if (!TTF_Init()) {
+        std::cout << "Nao foi iniciar a biblioteca TTF\n";
+    }
+
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
     maxJumpHeight = m_player.getRect().h * 2;
@@ -99,7 +104,6 @@ void Game::run() {
                 switch (e.key.keysym.sym)
                 {
                 case SDLK_SPACE:
-
                     if (m_startScreen) {
                         m_startScreen = false;
                         m_score_player = 0;
@@ -107,6 +111,10 @@ void Game::run() {
                         lastTimeSpawned = SDL_GetTicks();
                     }
                     m_player.startJump();
+                    break;
+                
+                case SDLK_ESCAPE:
+                    m_isRunning = false;
                     break;
                 default:
                     break;
@@ -130,8 +138,8 @@ void Game::run() {
         currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
         if (currentSpawnTime > spawnTimeInterval && m_startScreen == false) 
         {
-            std::cout << "Criado!";
-            Obstacles i (m_WIDTH_WINDOW, 700);
+            int tipoObstacle = randomIntGenerator(1, 3);
+            Obstacles i (m_WIDTH_WINDOW, 700, tipoObstacle);
             vetorObstacles.push_back(i);
             lastTimeSpawned = SDL_GetTicks();
             currentSpawnTime = 0;
@@ -230,6 +238,7 @@ SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer)
 void Game::GameOver() 
 {
     m_isRunning = false;
+    m_isRunning = false;
 }
 
 
@@ -238,6 +247,7 @@ void Game::loadGround (SDL_Renderer* m_render)
     SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
     SDL_RenderFillRect (m_renderer, &m_ground);
 }
+
 
 
 void Game::verColisoes() 
@@ -258,12 +268,17 @@ void Game::verColisoes()
 Uint32 Game::spawnTimeGenerator() 
 {
     Uint32 randomTime = rand() % 1900;
-    Uint32 minSpawnTime = 1300;
+    Uint32 minSpawnTime = 1100;
 
     spawnControllerDiminish += 40;
     randomTime = (randomTime - spawnControllerDiminish) + minSpawnTime;
 
     return randomTime; 
+}
+
+int Game::randomIntGenerator (int min, int max) 
+{
+    return rand() % (max - min + 1) + min;
 }
 
 void Game::startScreen() 

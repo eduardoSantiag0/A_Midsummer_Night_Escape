@@ -1,5 +1,8 @@
 #include "SDL2/SDL.h"
 
+//todo Mudar construtor de Obstáculos
+//todo Gerador de numeros
+
 class Obstacles
 {
 private:
@@ -10,7 +13,7 @@ private:
 
 
 public:
-    Obstacles(int posX, int posY);
+    Obstacles(int posX, int posY, int tipo);
     void move();
     void draw(SDL_Renderer* m_renderer);
 

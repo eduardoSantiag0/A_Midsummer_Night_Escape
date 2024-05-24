@@ -54,6 +54,7 @@ private:
     SDL_Texture* background_texture;
 
     int  m_score_player;
+    int randomIntGenerator(int min, int max);
 
     SDL_Texture* m_textTexture;
     TTF_Font* m_font;
