@@ -37,30 +37,9 @@ void Player::draw (SDL_Renderer* m_renderer)
 void Player::jump () 
 {  
 
-    // if (isJumping) {
-
-    //     if (m_GoDown) {
-    //         m_player_rect.y += 13;
-    //     } else {
-    //         m_player_rect.y -= 13;
-    //     } 
-
-    //     // 610 - 170 == 440
-    //     if (m_player_rect.y <= maxJumpHeight) {
-    //         m_GoDown = true;
-    //     }
-
-    //     if (m_player_rect.y >= m_pos_chao) {
-    //         isJumping = false;
-    //         m_GoDown = false;
-
-    //     }
-
-    // }
     if (isJumping)
     {
         if (m_GoDown) {
-            //* jumpVelociy == Posição Y
             //* Posição Y vai aumentando, ou seja, indo para baixo
             jumpVelocity += gravityDown;
         }

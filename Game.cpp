@@ -183,7 +183,7 @@ void Game::draw(SDL_Renderer* m_render)
 
 
     m_player.draw(m_render);
-    // Draw obstacles
+    
     for (auto &obstacle : vetorObstacles)
     {
         obstacle.draw(m_render);
@@ -258,11 +258,9 @@ void Game::verColisoes()
 Uint32 Game::spawnTimeGenerator() 
 {
     Uint32 randomTime = rand() % 1900;
-    
     Uint32 minSpawnTime = 1300;
-    
+
     spawnControllerDiminish += 40;
-    
     randomTime = (randomTime - spawnControllerDiminish) + minSpawnTime;
 
     return randomTime; 
@@ -274,17 +272,8 @@ void Game::startScreen()
         std::cerr << "Font not loaded properly, cannot render start screen text." << std::endl;
         return;
     }
-    // Definindo a cor do texto
     SDL_Color textColor = {0, 0, 0, 0};
 
-    // Carregando a fontefonteE:\ProjetosProgramming\myscripts\back-end\cpp\fuga_de_uma_noite_de_verao\src\fonts\light-arial.ttf
-    // TTF_Font* m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 28);
-    // if (font == nullptr) {
-    //     std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
-    //     return;
-    // }
-
-    // Renderizando o texto
     SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Press SPACE to Start", textColor);
     if (textSurface == nullptr) {
         std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
@@ -292,21 +281,13 @@ void Game::startScreen()
         return;
     }
 
-    // Criando a textura a partir da superfície
     m_textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
-    // if (textTexture == nullptr) {
-    //     std::cerr << "Failed to create texture from surface: " << SDL_GetError() << std::endl;
-    //     SDL_FreeSurface(textSurface);
-    //     TTF_CloseFont(font);
-    //     return;
-    // }
 
-    // Definindo a posição e tamanho do texto
     SDL_Rect textRect = {
-        m_WIDTH_WINDOW / 2 - textSurface->w / 2,
-        m_HEIGHT_WINDOW / 2 - textSurface->h / 2,
-        textSurface->w * 2,
-        textSurface->h * 2
+        m_WIDTH_WINDOW / 2 - (textSurface->w / 2 * 3),
+        m_HEIGHT_WINDOW / 2 - (textSurface->h / 2 * 3),
+        textSurface->w * 3,
+        textSurface->h * 3
     };
 
     SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &textRect);
