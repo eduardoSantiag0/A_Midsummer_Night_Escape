@@ -6,7 +6,7 @@
 // gravity: Aceleração constante aplicada para simular a gravidade.
 // maxJumpHeight: Define a altura máxima que o jogador pode alcançar (não usada diretamente no cálculo neste exemplo, mas pode ser útil para ajustes futuros).
 
-Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravity(0.8f), gravityUp(1.1f), gravityDown(1.0f)
+Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.0f)
 {    
 
     m_player_rect = {300, pos_chao, 100, 170};

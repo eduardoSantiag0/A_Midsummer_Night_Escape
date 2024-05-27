@@ -1,7 +1,7 @@
 #include "Game.hpp"
 #include <iostream>
 #include "SDL2/SDL.h"
-#include "TextureManager.hpp"
+// #include "TextureManager.hpp"
 #include <time.h>
 #include <algorithm>
 
@@ -18,7 +18,9 @@ Game::Game ()
     background_texture(nullptr), m_groundHeight(300), 
     m_player(780 - 170), m_score_player(0),
     spawnTimeInterval(1300), 
-    m_startScreen (true), m_textTexture(nullptr), m_font(nullptr)
+    m_startScreen (true), m_gameOverScreen(false),
+    m_textTexture(nullptr), m_font(nullptr), 
+    scoreDisplay (1920, 20, 6)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -46,25 +48,24 @@ Game::Game ()
     SDL_SetWindowIcon(m_window, icon);
     SDL_FreeSurface(icon);
 
-    
-    if (!TTF_Init()) {
-        std::cout << "Nao foi iniciar a biblioteca TTF\n";
+    if (TTF_Init() == -1) {
+        std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
+        SDL_Quit();
+        return;
     }
 
-    
-    if (!TTF_Init()) {
-        std::cout << "Nao foi iniciar a biblioteca TTF\n";
-    }
 
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
-    maxJumpHeight = m_player.getRect().h * 2;
+    // maxJumpHeight = m_player.getRect().h * 2;
 
     std::vector<Obstacles> vetorObstacles;
 
+    // scoreDisplay = {10, 10, 6};
+
     srand(time(0));
 
-    m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 28);
+    m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 42);
     if (m_font == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
@@ -90,7 +91,6 @@ void Game::run() {
     bool m_isRunning = true;
 
 
-    // lastTimeSpawned = SDL_GetTicks();
     while (m_isRunning)
     {
         frameStart = SDL_GetTicks();
@@ -109,6 +109,12 @@ void Game::run() {
                         m_score_player = 0;
                         spawnControllerDiminish = 0;
                         lastTimeSpawned = SDL_GetTicks();
+                    } else if (m_gameOverScreen) {
+                        m_gameOverScreen = false;
+                        m_score_player = 0;
+                        spawnControllerDiminish = 0;
+                        lastTimeSpawned = SDL_GetTicks();
+                        vetorObstacles.clear();
                     }
                     m_player.startJump();
                     break;
@@ -129,40 +135,44 @@ void Game::run() {
         }
 
 
-        draw(m_renderer);
+        if (!m_gameOverScreen) {
+            draw(m_renderer);
 
-        if (m_player.isJumping) 
-            m_player.jump();
+            if (m_player.isJumping) 
+                m_player.jump();
 
 
-        currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
-        if (currentSpawnTime > spawnTimeInterval && m_startScreen == false) 
-        {
-            int tipoObstacle = randomIntGenerator(1, 3);
-            Obstacles i (m_WIDTH_WINDOW, 700, tipoObstacle);
-            vetorObstacles.push_back(i);
-            lastTimeSpawned = SDL_GetTicks();
-            currentSpawnTime = 0;
-            spawnTimeInterval = spawnTimeGenerator();
+            currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
+            if (currentSpawnTime > spawnTimeInterval && m_startScreen == false) 
+            {
+                int tipoObstacle = randomIntGenerator(1, 3);
+                Obstacles i (m_WIDTH_WINDOW, 700, tipoObstacle);
+                vetorObstacles.push_back(i);
+                lastTimeSpawned = SDL_GetTicks();
+                currentSpawnTime = 0;
+                spawnTimeInterval = spawnTimeGenerator();
+            }
+
+            std::cout << "Score: " << m_score_player << "\n";
+
+            for (auto &obstacle : vetorObstacles)
+            {
+                obstacle.move();
+            }
+
+            verColisoes();
+
+        } else {
+            draw(m_renderer);
         }
 
-        // std::cout << "Intervalo: " << spawnTimeInterval << "\n";
-        std::cout << "Score: " << m_score_player << "\n";
-
-        for (auto &obstacle : vetorObstacles)
-        {
-            obstacle.move();
-        }
-
-        verColisoes();
         SDL_RenderPresent(m_renderer);
         frameTime = SDL_GetTicks() - frameStart;
 
-        // std::cout << "\nPosicao do quadrado: " << m_player.getRect().y << "\n";
         if (frameTime < targetFrameTime) {
             SDL_Delay(targetFrameTime - frameTime);
-            if (!m_startScreen)
-                m_score_player += 5;
+            if (!m_startScreen && !m_gameOverScreen)
+                m_score_player += 2;
         }
         
         
@@ -188,6 +198,8 @@ void Game::draw(SDL_Renderer* m_render)
 
     if (m_startScreen)
         startScreen();
+    else if (m_gameOverScreen)
+        gameOverScreen();
 
 
     m_player.draw(m_render);
@@ -196,6 +208,8 @@ void Game::draw(SDL_Renderer* m_render)
     {
         obstacle.draw(m_render);
     }
+
+    scoreDisplay.draw(m_render, m_score_player);
 
 }
 
@@ -235,13 +249,6 @@ SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer)
 }
 
 
-void Game::GameOver() 
-{
-    m_isRunning = false;
-    m_isRunning = false;
-}
-
-
 void Game::loadGround (SDL_Renderer* m_render) 
 {
     SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
@@ -256,10 +263,13 @@ void Game::verColisoes()
 
     while (it != vetorObstacles.end())
     {
-        if (checkColisao(it->getRect(), m_player.getRect()) || it->getRect().x == 0) {
-            it = vetorObstacles.erase(it);
+        if (checkColisao(it->getRect(), m_player.getRect())) {
+            m_gameOverScreen = true;
+            return;
         }
-        else {
+        if (it->getRect().x == 0) {
+            it = vetorObstacles.erase(it);
+        } else {
             ++it;
         }
     }
@@ -287,6 +297,7 @@ void Game::startScreen()
         std::cerr << "Font not loaded properly, cannot render start screen text." << std::endl;
         return;
     }
+
     SDL_Color textColor = {0, 0, 0, 0};
 
     SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Press SPACE to Start", textColor);
@@ -312,4 +323,55 @@ void Game::startScreen()
     // SDL_FreeSurface(textSurface);
     // TTF_CloseFont(font);
 
+}
+
+
+void Game::gameOverScreen() 
+{
+    if (m_font == nullptr) {
+        std::cerr << "Font not loaded properly, cannot render game over screen text." << std::endl;
+        return;
+    }
+
+    SDL_Color textColor = {0, 0, 0, 255};
+
+    const char* lines[] = {
+        "Game Over!",
+        "SPACE to Restart",
+        "ESC to Quit"
+    };
+
+
+    // Calcula o número de linhas
+    int numLines = sizeof(lines) / sizeof(lines[0]);
+    int lineHeight = 0;
+
+    // Loop pelo vetor do texto e renderiza elas
+    for (int i = 0; i < numLines; ++i) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, lines[i], textColor);
+        if (textSurface == nullptr) {
+            std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
+            continue;
+        }
+
+        if (m_textTexture != nullptr) {
+            SDL_DestroyTexture(m_textTexture);
+        }
+
+        m_textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
+
+        SDL_Rect textRect = {
+            m_WIDTH_WINDOW / 2 - textSurface->w / 2,
+            m_HEIGHT_WINDOW / 2 - (numLines * textSurface->h / 2) + (i * textSurface->h),
+            textSurface->w,
+            textSurface->h
+        };
+
+        SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &textRect);
+
+        // Guarda a altura do texto
+        lineHeight = textSurface->h;
+        
+        SDL_FreeSurface(textSurface);
+    }
 }

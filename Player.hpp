@@ -10,7 +10,6 @@ private:
     SDL_Texture* m_playerTexture;
 
     float jumpVelocity;
-    float gravity;
     float gravityUp;
     float gravityDown;
 
