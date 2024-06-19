@@ -36,6 +36,8 @@ void Player::jump ()
 {  
 
     if (isJumping) {
+        int qual_pulo = 0,
+            tam_pulo = 0;
 
         if (m_GoDown) {
             m_player_rect.y += 10;
