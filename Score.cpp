@@ -30,12 +30,12 @@ SDL_Texture* Score::getTexture(const char* filepath, SDL_Renderer* renderer) {
 }
 
 
-void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& dst_rect) {
+void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& vetorScore) {
 
     SDL_Rect src_rect;
 
     int col;
-    const int row = 8 * 3;
+    const int linha = 8 * 3;
 
     switch (digit) {
         case 0:
@@ -75,11 +75,11 @@ void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& dst_rect
 
 
     src_rect.x = col;
-    src_rect.y = row;
+    src_rect.y = linha;
     src_rect.w = 8;
     src_rect.h = 8;
 
-    SDL_RenderCopy(renderer, m_textureScore, &src_rect, &dst_rect);
+    SDL_RenderCopy(renderer, m_textureScore, &src_rect, &vetorScore);
 }
 
 
@@ -88,8 +88,8 @@ void Score::draw(SDL_Renderer* renderer, int player_score) {
         m_textureScore = getTexture("src/fonts/score_font.png", renderer);
     }
 
-    std::string score_str = std::to_string(player_score);
-    int len = score_str.length();
+    std::string score_str = std::to_string(player_score); //? 
+    int len = score_str.length(); //? 
 
     int digitWidth = 30; 
     int gap = 10; 
@@ -97,7 +97,7 @@ void Score::draw(SDL_Renderer* renderer, int player_score) {
     int startX = (1920 - totalWidth) / 2; 
 
     for (int i = 0; i < len; ++i) {
-        int digit = score_str[i] - '0';
+        int digit = score_str[i] - '0'; //? 
         SDL_Rect dst_rect = { startX + i * (digitWidth + gap), 50, digitWidth, digitWidth }; 
         extractDigitos(renderer, digit, dst_rect);
     }

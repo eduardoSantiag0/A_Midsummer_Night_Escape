@@ -13,6 +13,9 @@ private:
     float gravityUp;
     float gravityDown;
 
+    // const int m_limiar_pulo = 200;
+    int m_limiar_pulo;
+
 public:
     Player(int pos_chao);
     void jump();

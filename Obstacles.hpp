@@ -9,8 +9,15 @@ private:
     int m_speed;
     SDL_Texture* m_obstacleTexture;
     SDL_Rect m_obstacle;
-    bool m_acive;
+    bool m_active;
+    int m_spawn_pos;
+    void senoidalMovement();
 
+    bool m_GoUp;
+    bool m_GoDown;
+
+    int m_Tipo;
+    double m_time;
 
 public:
     Obstacles(int posX, int posY, int tipo);
