@@ -2,6 +2,8 @@
 #include "Player.hpp"
 #include "Obstacles.hpp"
 #include <vector>
+#include <SDL2/SDL_ttf.h>
+#include "Score.hpp"
 
 
 class Game 
@@ -18,22 +20,26 @@ public:
 
     void verColisoes();
     Uint32 spawnTimeGenerator();
+    Uint32 spawnControllerDiminish;
 
     SDL_Texture* loadBackground(const char* filepath, SDL_Renderer* renderer);
     bool checkColisao(SDL_Rect a, SDL_Rect b);
 
-    void GameOver();
-
+    void gameOverScreen();
     void startScreen();
     
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;
+    
     bool m_isRunning;
+    bool m_startScreen;
+    bool m_gameOverScreen;
+    
     int m_WIDTH_WINDOW;
     int m_HEIGHT_WINDOW;
 
-    float maxJumpHeight;
+    // float maxJumpHeight;
 
     Uint32 lastTimeSpawned;
     Uint32 startSpawnTime;
@@ -47,5 +53,13 @@ private:
     
     SDL_Rect m_background;
     SDL_Texture* background_texture;
+
+    int  m_score_player;
+    int randomIntGenerator(int min, int max);
+
+    SDL_Texture* m_textTexture;
+    TTF_Font* m_font;
+
+    Score scoreDisplay;
 
 };

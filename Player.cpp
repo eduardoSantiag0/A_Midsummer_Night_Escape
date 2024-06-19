@@ -2,10 +2,12 @@
 #include "TextureManager.hpp"
 #include <iostream>
 
-Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false)
-{
-    
-    float m_gravity = 0.2f;
+// jumpVelocity: Controla a velocidade do salto.
+// gravity: Aceleração constante aplicada para simular a gravidade.
+// maxJumpHeight: Define a altura máxima que o jogador pode alcançar (não usada diretamente no cálculo neste exemplo, mas pode ser útil para ajustes futuros).
+
+Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.0f)
+{    
 
     m_player_rect = {300, pos_chao, 100, 170};
 
@@ -35,31 +37,45 @@ void Player::draw (SDL_Renderer* m_renderer)
 void Player::jump () 
 {  
 
-    if (isJumping) {
-        int qual_pulo = 0,
-            tam_pulo = 0;
-
+    if (isJumping)
+    {
         if (m_GoDown) {
-            m_player_rect.y += 10;
-        } else {
-            m_player_rect.y -= 10;
-        } 
-
-        // 610 - 170 == 440
-        if (m_player_rect.y <= maxJumpHeight) {
-            m_GoDown = true;
+            //* Posição Y vai aumentando, ou seja, indo para baixo
+            jumpVelocity += gravityDown;
+        }
+        else {
+            //* Velocidade diminuindo conforme vai subindo, tendendo a zero 
+            jumpVelocity -= gravityUp;
+            
+            //* Ao chegar em zero, ele começa a descer
+            if (jumpVelocity <= 0) {
+                m_GoDown = true;
+            }
         }
 
-        if (m_player_rect.y >= m_pos_chao) {
+        //* Transforma o jumpVelocity em posição
+        m_player_rect.y += static_cast<int>(jumpVelocity);
+
+        //* Não cai do chão
+        if (m_player_rect.y >= m_pos_chao)
+        {
+            m_player_rect.y = m_pos_chao;
             isJumping = false;
             m_GoDown = false;
-
+            jumpVelocity = 0.0f;
         }
-
     }
 }
 
-
+void Player::startJump()
+{
+    if (!isJumping)
+    {
+        isJumping = true;
+        m_GoDown = false;
+        jumpVelocity = -15.0f; //* Controla a altura do pulo
+    }
+}
 
 SDL_Rect Player::getRect() const 
 {

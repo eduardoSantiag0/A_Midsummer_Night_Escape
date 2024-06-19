@@ -2,11 +2,28 @@
 #include "Obstacles.hpp"
 
 
-Obstacles::Obstacles(int posX, int posY) : m_speed (20), m_obstacleTexture(nullptr), m_acive (true)
+Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed (20), m_obstacleTexture(nullptr), m_acive (true)
 {
     // x, y, w, h
+    
+    switch (tipo)
+    {
+    case (1): // Generico
+        m_obstacle = {posX, posY, 40, 40};
+        break;
+    
+    case (2): // Cobra 
+        m_obstacle = {posX, posY + 40, 160, 40};
+        break;
+    case (3): // Bloco Grande
+        m_obstacle = {posX, posY, 100, 80};
+        break;
+
+    default:
+        break;
+    }
     std::cout << "\n";
-    m_obstacle = {posX, posY, 40, 40};
+    // m_obstacle = {posX, posY, 40, 40};
     std::cout << "Obstaculo Criado!\n";
 
 } 
