@@ -61,8 +61,6 @@ Game::Game ()
 
     std::vector<Obstacles> vetorObstacles;
 
-    // scoreDisplay = {10, 10, 6};
-
     srand(time(0));
 
     m_font = TTF_OpenFont("src/fonts/light-arial.ttf", 42);
