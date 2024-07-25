@@ -1,26 +1,26 @@
 #include "Game.hpp"
 #include <iostream>
 #include "SDL2/SDL.h"
-// #include "TextureManager.hpp"
 #include <time.h>
 #include <algorithm>
-
+#include <string>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_image.h>
 
+//todo renderTextFunction
 
 #define SCREEN_FPS 30
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
-Game::Game () 
+Game::Game ()
     : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), 
     background_texture(nullptr), m_groundHeight(300), 
     m_player(780 - 170), m_score_player(0),
     spawnTimeInterval(1300), 
     m_startScreen (true), m_gameOverScreen(false),
     m_textTexture(nullptr), m_font(nullptr), 
-    scoreDisplay (1920, 20, 6)
+    scoreDisplay (1920, 20, 6), m_HighestScores(0)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -57,7 +57,6 @@ Game::Game ()
 
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
-    // maxJumpHeight = m_player.getRect().h * 2;
 
     std::vector<Obstacles> vetorObstacles;
 
@@ -68,15 +67,49 @@ Game::Game ()
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
 
+
+    loadHighestScore();
+    std::cout << "Maior score: " << m_HighestScores << std::endl;
+
 }
 
-Game::~Game() {
+Game::~Game() 
+{
     TTF_Quit();
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
 
+void Game::loadHighestScore() 
+{
+    m_FileHighestScore.open("highest_score.txt", std::ios::in);
+    if (m_FileHighestScore.is_open()) {
+        std::string file_Content;
+        while (getline(m_FileHighestScore, file_Content)) {
+            if (!file_Content.empty()) {
+                try {
+                    m_HighestScores = std::stoi(file_Content);
+                } catch (const std::invalid_argument& e) {
+                    std::cerr << "Error parsing highest score: " << e.what() << std::endl;
+                    m_HighestScores = 0;
+
+                } catch (const std::out_of_range& e) {
+                    std::cerr << "Error parsing highest score (out of range): " << e.what() << std::endl;
+                    m_HighestScores = 0;
+
+                }
+            }
+        }
+        m_FileHighestScore.close(); 
+    } else {
+        m_HighestScores = 0;
+        m_FileHighestScore.open("highest_score.txt", std::ios::out);
+        m_FileHighestScore << m_HighestScores;
+        m_FileHighestScore.close();
+    }
+
+}
 
 void Game::run() {
     const int targetFrameTime = 1000 / SCREEN_FPS;
@@ -212,7 +245,8 @@ void Game::draw(SDL_Renderer* m_render)
 }
 
 
-bool Game::checkColisao(SDL_Rect a, SDL_Rect b) {
+bool Game::checkColisao(SDL_Rect a, SDL_Rect b) 
+{
     int leftA, leftB, rightA, rightB, topA, topB, bottomA, bottomB;
 
     leftA = a.x;
@@ -298,10 +332,12 @@ void Game::startScreen()
 
     SDL_Color textColor = {0, 0, 0, 0};
 
-    SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, "Press SPACE to Start", textColor);
-    if (textSurface == nullptr) {
+    const char* startMessage = "Press SPACE to Start";
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, startMessage, textColor);
+    if (!textSurface) {
         std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
-        TTF_CloseFont(m_font);
+        SDL_FreeSurface(textSurface);
         return;
     }
 
@@ -316,11 +352,8 @@ void Game::startScreen()
 
     SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &textRect);
 
-    //todo Liberando recursos
-    // SDL_DestroyTexture(textTexture);
-    // SDL_FreeSurface(textSurface);
-    // TTF_CloseFont(font);
-
+    SDL_DestroyTexture(m_textTexture); 
+    SDL_FreeSurface(textSurface);    
 }
 
 
@@ -338,6 +371,10 @@ void Game::gameOverScreen()
         "SPACE to Restart",
         "ESC to Quit"
     };
+
+    if (m_score_player > m_HighestScores) {
+        updateHighestScore();
+    }
 
 
     // Calcula o número de linhas
@@ -372,4 +409,49 @@ void Game::gameOverScreen()
         
         SDL_FreeSurface(textSurface);
     }
+}
+
+void Game::updateHighestScore() 
+{
+    m_FileHighestScore.open("highest_score.txt", std::ios::out);
+    if (m_FileHighestScore.is_open()) {
+        m_FileHighestScore << m_score_player;
+        m_FileHighestScore.close();
+    } else {
+        std::cerr << "Falha ao abrir highest_score.txt" << std::endl;            
+    }
+}
+
+
+
+void Game::renderText(const char* message, int x, int y, float scale, SDL_Color color) 
+{
+    if (!m_font) {
+        std::cerr << "Font not loaded properly, cannot render text." << std::endl;
+        return;
+    }
+
+    SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, message, color);
+    if (!textSurface) {
+        std::cerr << "Failed to create text surface: " << TTF_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
+    if (!textTexture) {
+        std::cerr << "Failed to create text texture: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+
+    SDL_Rect textRect = {
+        x - static_cast<int>(textSurface->w * scale / 2), 
+        y - static_cast<int>(textSurface->h * scale / 2), 
+        static_cast<int>(textSurface->w * scale),
+        static_cast<int>(textSurface->h * scale)
+    };
+
+    SDL_RenderCopy(m_renderer, textTexture, nullptr, &textRect);
+    SDL_DestroyTexture(textTexture);
+    SDL_FreeSurface(textSurface);
 }

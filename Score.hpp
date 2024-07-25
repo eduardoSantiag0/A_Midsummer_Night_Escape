@@ -2,11 +2,6 @@
 #include "SDL2/SDL.h"
 #include <vector>
 
-//todo Passar a posição pelo construtor, o numero de retângulos; 
-//// Lista de Retangulos
-//// Carregar textura
-//todo Atualizar Score passando um inteiro
-
 class Score 
 {
 public: 
@@ -18,8 +13,6 @@ public:
 private: 
     SDL_Texture* getTexture (const char* filepath, SDL_Renderer* renderer);
     void extractDigitos (SDL_Renderer* renderer, int digit, SDL_Rect& vetorScores);
-
-
 
     SDL_Texture* m_textureScore; 
     int m_pos_x;

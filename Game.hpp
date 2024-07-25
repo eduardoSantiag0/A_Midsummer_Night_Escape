@@ -4,7 +4,7 @@
 #include <vector>
 #include <SDL2/SDL_ttf.h>
 #include "Score.hpp"
-
+#include <fstream>
 
 class Game 
 {
@@ -61,5 +61,11 @@ private:
     TTF_Font* m_font;
 
     Score scoreDisplay;
+    std::fstream m_FileHighestScore;
+    int m_HighestScores;
+    void loadHighestScore();
+    void updateHighestScore();
+
+    void renderText(const char* message, int x, int y, float scale, SDL_Color color);
 
 };

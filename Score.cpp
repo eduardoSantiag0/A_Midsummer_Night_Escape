@@ -26,6 +26,9 @@ Score::~Score() {
 
 SDL_Texture* Score::getTexture(const char* filepath, SDL_Renderer* renderer) {
     SDL_Texture* scoreTex = TextureManager::LoadTexture(filepath, renderer);
+    if (!scoreTex) {
+        std::cerr << "Failed to load score texture: " << SDL_GetError() << std::endl;
+    }
     return scoreTex;
 }
 
@@ -88,8 +91,9 @@ void Score::draw(SDL_Renderer* renderer, int player_score) {
         m_textureScore = getTexture("src/fonts/score_font.png", renderer);
     }
 
-    std::string score_str = std::to_string(player_score); //? 
-    int len = score_str.length(); //? 
+
+    std::string score_str = std::to_string(player_score);
+    int len = score_str.length(); 
 
     int digitWidth = 30; 
     int gap = 10; 
@@ -97,7 +101,7 @@ void Score::draw(SDL_Renderer* renderer, int player_score) {
     int startX = (1920 - totalWidth) / 2; 
 
     for (int i = 0; i < len; ++i) {
-        int digit = score_str[i] - '0'; //? 
+        int digit = score_str[i] - '0'; 
         SDL_Rect dst_rect = { startX + i * (digitWidth + gap), 50, digitWidth, digitWidth }; 
         extractDigitos(renderer, digit, dst_rect);
     }
