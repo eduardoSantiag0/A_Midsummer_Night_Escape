@@ -5,7 +5,8 @@
 
 
 Score::Score(int pos_x, int pos_y, int num_rects)
-    : m_textureScore(nullptr), m_pos_x(pos_x), m_pos_y(pos_y), m_num_rects(num_rects) {
+    : m_textureScore(nullptr), m_pos_x(pos_x), m_pos_y(pos_y), m_num_rects(num_rects) 
+{
 
     int digitWidth = 30; 
     int digitHeight = 30; 
@@ -24,7 +25,8 @@ Score::~Score() {
     }
 }
 
-SDL_Texture* Score::getTexture(const char* filepath, SDL_Renderer* renderer) {
+SDL_Texture* Score::getTexture(const char* filepath, SDL_Renderer* renderer) 
+{
     SDL_Texture* scoreTex = TextureManager::LoadTexture(filepath, renderer);
     if (!scoreTex) {
         std::cerr << "Failed to load score texture: " << SDL_GetError() << std::endl;
@@ -33,7 +35,8 @@ SDL_Texture* Score::getTexture(const char* filepath, SDL_Renderer* renderer) {
 }
 
 
-void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& vetorScore) {
+void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& vetorScore) 
+{
 
     SDL_Rect src_rect;
 
@@ -86,7 +89,8 @@ void Score::extractDigitos(SDL_Renderer* renderer, int digit, SDL_Rect& vetorSco
 }
 
 
-void Score::draw(SDL_Renderer* renderer, int player_score) {
+void Score::draw(SDL_Renderer* renderer, int player_score) 
+{
     if (!m_textureScore) {
         m_textureScore = getTexture("src/fonts/score_font.png", renderer);
     }

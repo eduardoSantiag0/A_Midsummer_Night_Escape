@@ -67,5 +67,5 @@ private:
     void updateHighestScore();
 
     void renderText(const char* message, int x, int y, float scale, SDL_Color color);
-
+    void loadDisplayHighestScore();
 };

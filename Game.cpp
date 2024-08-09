@@ -1,3 +1,4 @@
+
 #include "Game.hpp"
 #include <iostream>
 #include "SDL2/SDL.h"
@@ -54,7 +55,6 @@ Game::Game ()
         return;
     }
 
-
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
 
@@ -66,7 +66,6 @@ Game::Game ()
     if (m_font == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
-
 
     loadHighestScore();
     std::cout << "Maior score: " << m_HighestScores << std::endl;
@@ -103,20 +102,27 @@ void Game::loadHighestScore()
         }
         m_FileHighestScore.close(); 
     } else {
-        m_HighestScores = 0;
         m_FileHighestScore.open("highest_score.txt", std::ios::out);
-        m_FileHighestScore << m_HighestScores;
+        if (m_FileHighestScore.is_open()) {
+            m_FileHighestScore << m_HighestScores;
+        }
         m_FileHighestScore.close();
     }
-
 }
 
-void Game::run() {
+void Game::loadDisplayHighestScore ()
+{
+    std::string highestScoreMessage = "TOP SCORE: " + std::to_string(m_HighestScores);
+    SDL_Color textColor = {255, 255, 255, 255};
+    renderText(highestScoreMessage.c_str(), 150, 65, 1.15, textColor);
+}
+
+void Game::run() 
+{
     const int targetFrameTime = 1000 / SCREEN_FPS;
     Uint32 frameStart;
     int frameTime;
     Uint32 currentSpawnTime;
-
 
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
     bool m_isRunning = true;
@@ -146,6 +152,8 @@ void Game::run() {
                         spawnControllerDiminish = 0;
                         lastTimeSpawned = SDL_GetTicks();
                         vetorObstacles.clear();
+                        if (m_score_player > m_HighestScores) 
+                            updateHighestScore();
                     }
                     m_player.startJump();
                     break;
@@ -224,7 +232,6 @@ void Game::draw(SDL_Renderer* m_render)
     SDL_SetRenderDrawColor(m_renderer, 44, 220, 250, 255); 
     SDL_RenderFillRect (m_renderer, &m_background);
 
-
     loadGround(m_render);
 
     if (m_startScreen)
@@ -241,9 +248,41 @@ void Game::draw(SDL_Renderer* m_render)
     }
 
     scoreDisplay.draw(m_render, m_score_player);
+    loadDisplayHighestScore();
 
 }
 
+
+SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer) 
+{
+    SDL_Texture* tex = TextureManager::LoadTexture(filepath, renderer);
+    return tex;
+}
+
+
+void Game::loadGround (SDL_Renderer* m_render) 
+{
+    SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
+    SDL_RenderFillRect (m_renderer, &m_ground);
+}
+
+void Game::verColisoes() 
+{
+    auto it = vetorObstacles.begin();
+
+    while (it != vetorObstacles.end())
+    {
+        if (checkColisao(it->getRect(), m_player.getRect())) {
+            m_gameOverScreen = true;
+            return;
+        }
+        if (it->getRect().x == 0) {
+            it = vetorObstacles.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
 
 bool Game::checkColisao(SDL_Rect a, SDL_Rect b) 
 {
@@ -273,39 +312,6 @@ bool Game::checkColisao(SDL_Rect a, SDL_Rect b)
     return true;
 }
 
-
-SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer) 
-{
-    SDL_Texture* tex = TextureManager::LoadTexture(filepath, renderer);
-    return tex;
-}
-
-
-void Game::loadGround (SDL_Renderer* m_render) 
-{
-    SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
-    SDL_RenderFillRect (m_renderer, &m_ground);
-}
-
-
-
-void Game::verColisoes() 
-{
-    auto it = vetorObstacles.begin();
-
-    while (it != vetorObstacles.end())
-    {
-        if (checkColisao(it->getRect(), m_player.getRect())) {
-            m_gameOverScreen = true;
-            return;
-        }
-        if (it->getRect().x == 0) {
-            it = vetorObstacles.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
 
 Uint32 Game::spawnTimeGenerator() 
 {
@@ -395,6 +401,7 @@ void Game::gameOverScreen()
 
         m_textTexture = SDL_CreateTextureFromSurface(m_renderer, textSurface);
 
+
         SDL_Rect textRect = {
             m_WIDTH_WINDOW / 2 - textSurface->w / 2,
             m_HEIGHT_WINDOW / 2 - (numLines * textSurface->h / 2) + (i * textSurface->h),
@@ -405,13 +412,13 @@ void Game::gameOverScreen()
         SDL_RenderCopy(m_renderer, m_textTexture, nullptr, &textRect);
 
         // Guarda a altura do texto
-        lineHeight = textSurface->h;
-        
+        // lineHeight = textSurface->h;
+
         SDL_FreeSurface(textSurface);
     }
 }
 
-void Game::updateHighestScore() 
+void Game::updateHighestScore()
 {
     m_FileHighestScore.open("highest_score.txt", std::ios::out);
     if (m_FileHighestScore.is_open()) {
@@ -421,8 +428,6 @@ void Game::updateHighestScore()
         std::cerr << "Falha ao abrir highest_score.txt" << std::endl;            
     }
 }
-
-
 
 void Game::renderText(const char* message, int x, int y, float scale, SDL_Color color) 
 {
