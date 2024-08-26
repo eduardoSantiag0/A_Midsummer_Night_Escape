@@ -15,6 +15,7 @@ private:
 
     // const int m_limiar_pulo = 200;
     int m_limiar_pulo;
+    int initialY;
 
 public:
     Player(int pos_chao);
@@ -23,6 +24,7 @@ public:
     void draw(SDL_Renderer* m_renderer);
     bool isJumping;
     bool m_GoDown;
+    void endJump();
     
     SDL_Rect getRect() const;
     SDL_Texture* getTexture (const char* filepath, SDL_Renderer* renderer);

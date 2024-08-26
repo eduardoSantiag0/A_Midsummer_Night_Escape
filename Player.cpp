@@ -23,7 +23,7 @@ void Player::draw (SDL_Renderer* m_renderer)
     SDL_SetRenderDrawColor(m_renderer, 250, 32, 15, 255); // Vermelho
     SDL_RenderFillRect (m_renderer, &m_player_rect);
 
-    //! Quando tiver sprites
+    // ! Quando tiver sprites
     // if (!m_playerTexture) { 
     //     m_playerTexture = getTexture("src/images/sprites/spaceship/spaceship_teste_2.png", m_renderer);
     //     if (!m_playerTexture) {
@@ -36,34 +36,30 @@ void Player::draw (SDL_Renderer* m_renderer)
 
 void Player::jump () 
 {  
+    if (!isJumping) return;
 
-    if (isJumping)
+
+    if (m_GoDown) {
+        //* Posição Y vai aumentando, ou seja, indo para baixo
+        jumpVelocity += gravityDown;
+    } else {
+        //* Velocidade diminuindo conforme vai subindo, tendendo a zero 
+        jumpVelocity -= gravityUp;
+        
+        //* Ao chegar em zero, ele começa a descer
+        if (jumpVelocity <= 0) m_GoDown = true;
+    }
+
+    //* Transforma o jumpVelocity em posição
+    m_player_rect.y += static_cast<int>(jumpVelocity);
+
+    //* Não passa do chão
+    if (m_player_rect.y >= m_pos_chao)
     {
-        if (m_GoDown) {
-            //* Posição Y vai aumentando, ou seja, indo para baixo
-            jumpVelocity += gravityDown;
-        }
-        else {
-            //* Velocidade diminuindo conforme vai subindo, tendendo a zero 
-            jumpVelocity -= gravityUp;
-            
-            //* Ao chegar em zero, ele começa a descer
-            if (jumpVelocity <= 0) {
-                m_GoDown = true;
-            }
-        }
-
-        //* Transforma o jumpVelocity em posição
-        m_player_rect.y += static_cast<int>(jumpVelocity);
-
-        //* Não passa do chão
-        if (m_player_rect.y >= m_pos_chao)
-        {
-            m_player_rect.y = m_pos_chao;
-            isJumping = false;
-            m_GoDown = false;
-            jumpVelocity = 0.0f;
-        }
+        m_player_rect.y = m_pos_chao;
+        isJumping = false;
+        m_GoDown = false;
+        jumpVelocity = 0.0f;
     }
 }
 
@@ -76,6 +72,12 @@ void Player::startJump()
         m_GoDown = false;
         jumpVelocity = -15.0f; //* Controla a altura do pulo
     }
+}
+
+void Player::endJump()
+{
+    m_GoDown = true;
+    jumpVelocity += gravityDown;
 }
 
 SDL_Rect Player::getRect() const 

@@ -127,6 +127,7 @@ void Game::run()
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
     bool m_isRunning = true;
 
+    bool spacePressed = false; //! Flag to check if SPACE is being held
 
     while (m_isRunning)
     {
@@ -154,8 +155,10 @@ void Game::run()
                         vetorObstacles.clear();
                         if (m_score_player > m_HighestScores) 
                             updateHighestScore();
+                    } else if (!spacePressed) {
+                        spacePressed = true;
+                        m_player.startJump();
                     }
-                    m_player.startJump();
                     break;
                 
                 case SDLK_ESCAPE:
@@ -163,6 +166,12 @@ void Game::run()
                     break;
                 default:
                     break;
+                }
+                break;
+            case SDL_KEYUP: 
+                if (e.key.keysym.sym == SDLK_SPACE) {
+                    spacePressed = false; //! Stop the jump when SPACE is released
+                    // m_player.endJump();
                 }
                 break;
             case SDL_QUIT: 
@@ -177,8 +186,10 @@ void Game::run()
         if (!m_gameOverScreen) {
             draw(m_renderer);
 
-            if (m_player.isJumping) 
-                m_player.jump();
+            if (spacePressed && m_player.isJumping)
+                m_player.jump(); 
+            else 
+                m_player.endJump(); 
 
 
             currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
