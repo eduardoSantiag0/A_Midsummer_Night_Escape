@@ -9,8 +9,6 @@
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_image.h>
 
-//todo renderTextFunction
-
 #define SCREEN_FPS 30
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
@@ -28,7 +26,9 @@ Game::Game ()
         return;
     }
 
-    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, 0);
+    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, 0);
+
+    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_RESIZABLE);
     if (m_window == nullptr) {
         std::cout << "Nao foi  possivel abrir a janela\n";
         return;
@@ -48,6 +48,7 @@ Game::Game ()
     }
     SDL_SetWindowIcon(m_window, icon);
     SDL_FreeSurface(icon);
+
 
     if (TTF_Init() == -1) {
         std::cerr << "TTF_Init Error: " << TTF_GetError() << std::endl;
@@ -71,6 +72,7 @@ Game::Game ()
     std::cout << "Maior score: " << m_HighestScores << std::endl;
 
 }
+
 
 Game::~Game() 
 {
@@ -127,7 +129,7 @@ void Game::run()
     const int chaoPlayer =  (m_HEIGHT_WINDOW - m_groundHeight) - m_player.getRect().h;
     bool m_isRunning = true;
 
-    bool spacePressed = false; //! Flag to check if SPACE is being held
+    bool spacePressed = false; 
 
     while (m_isRunning)
     {
@@ -143,6 +145,7 @@ void Game::run()
                 {
                 case SDLK_SPACE:
                     if (m_startScreen) {
+                        m_player.resetPosition();
                         m_startScreen = false;
                         m_score_player = 0;
                         spawnControllerDiminish = 0;
@@ -155,10 +158,12 @@ void Game::run()
                         vetorObstacles.clear();
                         if (m_score_player > m_HighestScores) 
                             updateHighestScore();
-                    } else if (!spacePressed) {
+                    } 
+                    else if (!spacePressed) {
                         spacePressed = true;
                         m_player.startJump();
                     }
+
                     break;
                 
                 case SDLK_ESCAPE:
@@ -170,8 +175,8 @@ void Game::run()
                 break;
             case SDL_KEYUP: 
                 if (e.key.keysym.sym == SDLK_SPACE) {
-                    spacePressed = false; //! Stop the jump when SPACE is released
-                    // m_player.endJump();
+                    spacePressed = false; 
+                    m_player.endJump();
                 }
                 break;
             case SDL_QUIT: 
@@ -186,10 +191,9 @@ void Game::run()
         if (!m_gameOverScreen) {
             draw(m_renderer);
 
-            if (spacePressed && m_player.isJumping)
-                m_player.jump(); 
-            else 
-                m_player.endJump(); 
+
+            if (m_player.isJumping)
+                m_player.jump(spacePressed); 
 
 
             currentSpawnTime = SDL_GetTicks() - lastTimeSpawned;
@@ -311,7 +315,6 @@ bool Game::checkColisao(SDL_Rect a, SDL_Rect b)
 
     //* Cenário em que não tem colisão 
     // Um dos lados de A estão fora de B
-    // 
     if( bottomA <= topB || topA >= bottomB || rightA <= leftB ||  leftA >= rightB ) {
         return false;
     }
@@ -319,7 +322,6 @@ bool Game::checkColisao(SDL_Rect a, SDL_Rect b)
 
     //* Tem colisao
     // Nenhum dos lados de A estão fora de B;
-    //
     return true;
 }
 

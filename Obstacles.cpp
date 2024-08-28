@@ -23,9 +23,7 @@ Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed(25), m_obstacleText
         break;
     }
 
-    std::cout << "\n";
-    std::cout << "Obstaculo Criado!\n";
-
+    // std::cout << "\nObstaculo Criado!\n";
 } 
 
 void Obstacles::move() 

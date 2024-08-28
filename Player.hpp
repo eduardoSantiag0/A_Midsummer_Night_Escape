@@ -13,18 +13,16 @@ private:
     float gravityUp;
     float gravityDown;
 
-    // const int m_limiar_pulo = 200;
-    int m_limiar_pulo;
-    int initialY;
-
 public:
     Player(int pos_chao);
-    void jump();
+    void jump(bool spacePressed);
     void startJump();
+    void endJump();
     void draw(SDL_Renderer* m_renderer);
     bool isJumping;
     bool m_GoDown;
-    void endJump();
+
+    void resetPosition();
     
     SDL_Rect getRect() const;
     SDL_Texture* getTexture (const char* filepath, SDL_Renderer* renderer);

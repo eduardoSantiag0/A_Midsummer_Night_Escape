@@ -6,16 +6,18 @@
 // gravity: Aceleração constante aplicada para simular a gravidade.
 // maxJumpHeight: Define a altura máxima que o jogador pode alcançar (não usada diretamente no cálculo neste exemplo, mas pode ser útil para ajustes futuros).
 
-Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.0f), m_limiar_pulo (30)
-{    
+Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.5f)
+{
 
     m_player_rect = {300, pos_chao, 100, 170};
 
     m_pos_chao = pos_chao;
 
-    std::cout << "Puck Criado!\n";
-    maxJumpHeight = m_pos_chao - m_player_rect.h;
 
+    std::cout << "Puck Criado!\n";
+    maxJumpHeight = (m_player_rect.h * 2) + 210;
+
+    // std::cout << "Max Jump Height: " << maxJumpHeight << std::endl;
 }
 
 void Player::draw (SDL_Renderer* m_renderer) 
@@ -34,11 +36,8 @@ void Player::draw (SDL_Renderer* m_renderer)
     // SDL_RenderCopy(m_renderer, m_playerTexture, NULL, &m_player_rect);
 }
 
-void Player::jump () 
-{  
-    if (!isJumping) return;
-
-
+void Player::jump (bool spacePressed) 
+{ 
     if (m_GoDown) {
         //* Posição Y vai aumentando, ou seja, indo para baixo
         jumpVelocity += gravityDown;
@@ -47,7 +46,10 @@ void Player::jump ()
         jumpVelocity -= gravityUp;
         
         //* Ao chegar em zero, ele começa a descer
-        if (jumpVelocity <= 0) m_GoDown = true;
+        if (m_player_rect.y <= maxJumpHeight || !spacePressed) {
+            m_GoDown = true;
+        }
+
     }
 
     //* Transforma o jumpVelocity em posição
@@ -57,16 +59,18 @@ void Player::jump ()
     if (m_player_rect.y >= m_pos_chao)
     {
         m_player_rect.y = m_pos_chao;
+        
         isJumping = false;
         m_GoDown = false;
         jumpVelocity = 0.0f;
     }
+
+    // std::cout << "Jump Velocity: " << jumpVelocity << std::endl;
 }
 
 void Player::startJump()
 {
-// m_pos_chao - m_limiar_pulo == m_player_rect.y
-    if (!isJumping || m_player_rect.y >= m_pos_chao - m_limiar_pulo)
+    if (!isJumping)
     {
         isJumping = true;
         m_GoDown = false;
@@ -77,7 +81,6 @@ void Player::startJump()
 void Player::endJump()
 {
     m_GoDown = true;
-    jumpVelocity += gravityDown;
 }
 
 SDL_Rect Player::getRect() const 
@@ -90,4 +93,10 @@ SDL_Texture* Player::getTexture(const char* filepath, SDL_Renderer* renderer)
     SDL_Texture* playerTex = TextureManager::LoadTexture(filepath, renderer);
 
     return playerTex;
+}
+
+void Player::resetPosition() 
+{
+    m_player_rect.x = 300;
+    m_player_rect.y = m_pos_chao;
 }
