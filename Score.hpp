@@ -6,6 +6,7 @@ class Score
 {
 public: 
     Score(int pos_x, int pos_y, int num_rects);
+    // Score(int pos_x, int pos_y, int num_rects, int screenWidth, int screenHeight);
     ~Score();
 
     void draw(SDL_Renderer* renderer, int player_score);
