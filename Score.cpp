@@ -18,6 +18,18 @@ Score::Score(int pos_x, int pos_y, int num_rects)
     }
 }
 
+// Score::Score(int pos_x, int pos_y, int num_rects, int screenWidth, int screenHeight)
+//     : m_textureScore(nullptr), m_pos_x(pos_x), m_pos_y(pos_y), m_num_rects(num_rects) 
+// {
+//     int digitWidth = screenWidth * 0.50;  // Example: 5% of screen width
+//     int digitHeight = screenHeight * 0.50;  // Example: 5% of screen height
+//     int gap = screenWidth * 0.50;  // Example: 2% of screen width as gap
+
+//     for (int i = 0; i < num_rects; ++i) {
+//         SDL_Rect rect = { pos_x + i * (digitWidth + gap), pos_y, digitWidth, digitHeight };
+//         vetorScores.push_back(rect);
+//     }
+// }
 
 Score::~Score() {
     if (m_textureScore) {

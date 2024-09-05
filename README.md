@@ -1,6 +1,6 @@
 <!-- ![A_Midsummer_Night_Escape_Logo](src/images/references/A-Midsummer-Night_s-Escape_Colored.jpg) -->
 <div style="text-align: center;">
-    <img src="src/images/references/A-Midsummer-Night_s-Escape_Colored.jpg" alt="A_Midsummer_Night_Escape_Logo" width="600" height="600">
+    <img src="src/images/references/A-Midsummer-Night_s-Escape_Colored.jpg" alt="A_Midsummer_Night_Escape_Logo" width="400">
 </div>
 
 <br>

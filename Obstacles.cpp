@@ -13,10 +13,10 @@ Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed(25), m_obstacleText
         break;
     
     case (2): // Cobra 
-        m_obstacle = {posX, posY + 20, 210, 60};
+        m_obstacle = {posX, posY + 20, 180, 60};
         break;
     case (3): // Bloco Grande
-        m_obstacle = {posX, posY - 20, 100, 80 + 20};
+        m_obstacle = {posX, posY - 20, 100, 100};
         break;
 
     default:

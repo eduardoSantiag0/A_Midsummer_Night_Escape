@@ -1,4 +1,3 @@
-
 #include "Game.hpp"
 #include <iostream>
 #include "SDL2/SDL.h"
@@ -13,13 +12,16 @@
 //Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game ()
-    : m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), 
+    : 
+    // m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), 
     background_texture(nullptr), m_groundHeight(300), 
     m_player(780 - 170), m_score_player(0),
     spawnTimeInterval(1300), 
     m_startScreen (true), m_gameOverScreen(false),
     m_textTexture(nullptr), m_font(nullptr), 
-    scoreDisplay (1920, 20, 6), m_HighestScores(0)
+    scoreDisplay (1920, 20, 6)
+    // scoreDisplay (1000, 1000, 6, 1920, 1080)
+    , m_HighestScores(0)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -27,8 +29,10 @@ Game::Game ()
     }
 
     // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, 0);
-
-    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_RESIZABLE);
+    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_RESIZABLE);
+    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    
+    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN);
     if (m_window == nullptr) {
         std::cout << "Nao foi  possivel abrir a janela\n";
         return;
@@ -39,6 +43,11 @@ Game::Game ()
         std::cout << "Nao foi  possivel abrir o render \n";
         return;
     }
+
+    // SDL_GetWindowSizeInPixels(m_window, &m_WIDTH_WINDOW, &m_HEIGHT_WINDOW);
+    m_WIDTH_WINDOW = SDL_GetWindowSurface(m_window)->w;
+    m_HEIGHT_WINDOW = SDL_GetWindowSurface(m_window)->h;
+    
 
     
     SDL_Surface* icon = SDL_LoadBMP("./src/images/references/A-Midsummer-Night_s-Escape_Colored.bmp");
@@ -241,6 +250,9 @@ void Game::draw(SDL_Renderer* m_render)
     // Player -> Vermelho
     // Obstáculos -> Verde
     // 
+
+    std::cout << "Largura da Tela: " << m_WIDTH_WINDOW << std::endl;
+    std::cout << "Altura da Tela: " << m_HEIGHT_WINDOW << std::endl;
 
     SDL_RenderClear(m_render);
     
