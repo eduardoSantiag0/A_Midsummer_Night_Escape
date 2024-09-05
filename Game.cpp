@@ -142,8 +142,10 @@ void Game::run()
 
     while (m_isRunning)
     {
+
         frameStart = SDL_GetTicks();
 
+        loadHighestScore();
         SDL_Event e;
         while (SDL_PollEvent(&e))
         {
@@ -167,6 +169,7 @@ void Game::run()
                         vetorObstacles.clear();
                         if (m_score_player > m_HighestScores) 
                             updateHighestScore();
+                        
                     } 
                     else if (!spacePressed) {
                         spacePressed = true;
