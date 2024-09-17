@@ -14,8 +14,9 @@
 Game::Game ()
     : 
     // m_WIDTH_WINDOW(1920), m_HEIGHT_WINDOW(1080), 
-    background_texture(nullptr), m_groundHeight(300), 
-    m_player(780 - 170), m_score_player(0),
+    background_texture(nullptr),
+    m_player(160),
+    m_score_player(0),
     spawnTimeInterval(1300), 
     m_startScreen (true), m_gameOverScreen(false),
     m_textTexture(nullptr), m_font(nullptr), 
@@ -28,11 +29,7 @@ Game::Game ()
         return;
     }
 
-    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, 0);
-    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_RESIZABLE);
-    // m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    
-    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN);
+    m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (m_window == nullptr) {
         std::cout << "Nao foi  possivel abrir a janela\n";
         return;
@@ -44,11 +41,8 @@ Game::Game ()
         return;
     }
 
-    // SDL_GetWindowSizeInPixels(m_window, &m_WIDTH_WINDOW, &m_HEIGHT_WINDOW);
     m_WIDTH_WINDOW = SDL_GetWindowSurface(m_window)->w;
     m_HEIGHT_WINDOW = SDL_GetWindowSurface(m_window)->h;
-    
-
     
     SDL_Surface* icon = SDL_LoadBMP("./src/images/references/A-Midsummer-Night_s-Escape_Colored.bmp");
     if (icon == nullptr) {
@@ -65,8 +59,14 @@ Game::Game ()
         return;
     }
 
+    groundY = (m_HEIGHT_WINDOW * 2) / 3;
+    m_groundHeight = m_HEIGHT_WINDOW - groundY; 
+
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
-    m_ground = {0, m_HEIGHT_WINDOW - m_groundHeight, m_WIDTH_WINDOW, m_groundHeight};
+    m_ground = {0, groundY, m_WIDTH_WINDOW, m_groundHeight};
+
+    m_player = Player(groundY);
+
 
     std::vector<Obstacles> vetorObstacles;
 
@@ -169,13 +169,11 @@ void Game::run()
                         vetorObstacles.clear();
                         if (m_score_player > m_HighestScores) 
                             updateHighestScore();
-                        
                     } 
                     else if (!spacePressed) {
                         spacePressed = true;
                         m_player.startJump();
                     }
-
                     break;
                 
                 case SDLK_ESCAPE:
@@ -212,7 +210,8 @@ void Game::run()
             if (currentSpawnTime > spawnTimeInterval && m_startScreen == false) 
             {
                 int tipoObstacle = randomIntGenerator(1, 3);
-                Obstacles i (m_WIDTH_WINDOW, 700, tipoObstacle);
+                // Obstacles i (m_WIDTH_WINDOW, 700, tipoObstacle);
+                Obstacles i (m_WIDTH_WINDOW, groundY, tipoObstacle);
                 vetorObstacles.push_back(i);
                 lastTimeSpawned = SDL_GetTicks();
                 currentSpawnTime = 0;
@@ -253,9 +252,6 @@ void Game::draw(SDL_Renderer* m_render)
     // Player -> Vermelho
     // Obstáculos -> Verde
     // 
-
-    std::cout << "Largura da Tela: " << m_WIDTH_WINDOW << std::endl;
-    std::cout << "Altura da Tela: " << m_HEIGHT_WINDOW << std::endl;
 
     SDL_RenderClear(m_render);
     

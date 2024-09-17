@@ -49,6 +49,7 @@ private:
 
     SDL_Rect m_ground;
     int m_groundHeight;
+    int groundY;
 
     
     SDL_Rect m_background;
