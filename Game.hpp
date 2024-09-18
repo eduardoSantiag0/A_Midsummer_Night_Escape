@@ -3,8 +3,10 @@
 #include "Obstacles.hpp"
 #include <vector>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "Score.hpp"
 #include <fstream>
+
 
 class Game 
 {
@@ -14,16 +16,14 @@ public:
 
     void run();
     void draw(SDL_Renderer* m_renderer);
-    void loadGround (SDL_Renderer* m_renderer);
 
     std::vector<Obstacles> vetorObstacles;
 
     void verColisoes();
+    bool checkColisao(SDL_Rect a, SDL_Rect b);
     Uint32 spawnTimeGenerator();
     Uint32 spawnControllerDiminish;
 
-    SDL_Texture* loadBackground(const char* filepath, SDL_Renderer* renderer);
-    bool checkColisao(SDL_Rect a, SDL_Rect b);
 
     void gameOverScreen();
     void startScreen();
@@ -39,8 +39,6 @@ private:
     int m_WIDTH_WINDOW;
     int m_HEIGHT_WINDOW;
 
-    // float maxJumpHeight;
-
     Uint32 lastTimeSpawned;
     Uint32 startSpawnTime;
     Uint32 spawnTimeInterval; 
@@ -54,12 +52,17 @@ private:
     
     SDL_Rect m_background;
     SDL_Texture* background_texture;
+    SDL_Rect treeBackground;
+    SDL_Texture* treeTexture;
+    void loadGround (SDL_Renderer* m_renderer);
+    void loadBackground(SDL_Texture*& texture, const char* filepath, SDL_Renderer* renderer, SDL_Rect srcRect);
 
     int  m_score_player;
     int randomIntGenerator(int min, int max);
 
     SDL_Texture* m_textTexture;
     TTF_Font* m_font;
+    SDL_Color textColor;
 
     Score scoreDisplay;
     std::fstream m_FileHighestScore;
@@ -69,5 +72,9 @@ private:
 
     void renderText(const char* message, int x, int y, float scale, SDL_Color color);
     void loadDisplayHighestScore();
+
+    Mix_Music* themeSong;
+
+
 
 };

@@ -7,7 +7,7 @@
 // maxJumpHeight: Define a altura máxima que o jogador pode alcançar (não usada diretamente no cálculo neste exemplo, mas pode ser útil para ajustes futuros).
 
 
-Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.5f)
+Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.5f), isAlive(true)
 {
 
     int relative_ground = pos_chao - 160;
@@ -22,20 +22,34 @@ Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoD
     std::cout << "Max Jump Height: " << maxJumpHeight << std::endl;
 }
 
-void Player::draw (SDL_Renderer* m_renderer) 
+void Player::draw(SDL_Renderer* m_renderer) 
 {
-    SDL_SetRenderDrawColor(m_renderer, 250, 32, 15, 255); // Vermelho
-    SDL_RenderFillRect (m_renderer, &m_player_rect);
+    //* Animation
+    //* Base
+    //* Jump
+    //* Death
 
-    // ! Quando tiver sprites
-    // if (!m_playerTexture) { 
-    //     m_playerTexture = getTexture("src/images/sprites/spaceship/spaceship_teste_2.png", m_renderer);
-    //     if (!m_playerTexture) {
-    //         std::cerr << "Failed to load spaceship texture." << SDL_GetError() << std::endl;
-    //         return;
-    //     }
-    // }
-    // SDL_RenderCopy(m_renderer, m_playerTexture, NULL, &m_player_rect);
+    if (m_playerTexture) {
+        SDL_DestroyTexture(m_playerTexture); 
+    }
+
+    std::string spritePath = "";
+    
+    if (!isAlive) {
+        spritePath = "src/images/sprites/puckdeath.png";
+    } else if (isJumping) {
+        spritePath = "src/images/sprites/puckjump.png";
+    } else {
+        spritePath = "src/images/sprites/puckbase.png";
+    }
+
+    m_playerTexture = getTexture(spritePath.c_str(), m_renderer);
+    if (!m_playerTexture) {
+        std::cerr << "Failed to load player texture: " << SDL_GetError() << std::endl;
+        return;
+    }
+
+    SDL_RenderCopy(m_renderer, m_playerTexture, nullptr, &m_player_rect);
 }
 
 void Player::jump (bool spacePressed) 
@@ -67,7 +81,6 @@ void Player::jump (bool spacePressed)
         jumpVelocity = 0.0f;
     }
 
-    // std::cout << "Jump Velocity: " << jumpVelocity << std::endl;
 }
 
 void Player::startJump()
@@ -101,4 +114,10 @@ void Player::resetPosition()
 {
     m_player_rect.x = 300;
     m_player_rect.y = m_pos_chao;
+    isAlive = true;
+}
+
+void Player::isDead() 
+{
+    isAlive = false;
 }

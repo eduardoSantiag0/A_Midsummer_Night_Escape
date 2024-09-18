@@ -1,32 +1,44 @@
 #include <iostream>
 #include "Obstacles.hpp"
 #include <cmath>
+#include "TextureManager.hpp"
 
-Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed(25), m_obstacleTexture(nullptr), m_active(true), m_spawn_pos (posY), m_Tipo(tipo), m_time (0)
+
+Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed(25), m_obstacleTexture(nullptr), m_active(true), m_spawn_pos (posY), m_Tipo(tipo), m_time (0),
+currentFrame(0), maxFrames(2), animationSpeed(600), lastFrameTime(0)
 {
     // x, y, w, h
     
     switch (tipo)
     {
-    case (1): // Generico / Bloco Pequeno
+    case (1): // Fireball
         // m_obstacle = {posX, posY + 40, 40, 40};
-        m_obstacle = {posX, posY - 40, 40, 40};
+        frameHeight = 40;
+        frameWidth = 40;
+        m_obstacle = {posX, posY - 40, frameHeight, frameWidth};
+        spritePath = "src/images/sprites/fireballsheet.png";
         break;
     
-    case (2): // Cobra 
+    case (2): // Roseira
         // m_obstacle = {posX, posY + 20 + 60, 180, 60};
-        m_obstacle = {posX, posY - 60, 180, 60};
+        frameHeight = 210;
+        frameWidth = 60;
+        m_obstacle = {posX, posY - 60, frameHeight, frameWidth};
+        spritePath = "src/images/sprites/roseirasheet.png";
         break;
-    case (3): // Bloco Grande
+    case (3): // Cogumelo
         // m_obstacle = {posX, posY - 20, 100, 100};
-        m_obstacle = {posX, posY - 100, 100, 100};
+        frameHeight = 100;
+        frameWidth = 100;
+        spritePath = "src/images/sprites/cogumelosheet.png";
+        m_obstacle = {posX, posY - 100, frameHeight, frameWidth};
         break;
-
     default:
         break;
     }
 
-    // std::cout << "\nObstaculo Criado!\n";
+    srcRect = {0, 0, frameWidth, frameHeight};
+
 } 
 
 void Obstacles::move() 
@@ -40,23 +52,44 @@ void Obstacles::move()
     if (m_obstacle.x + m_obstacle.w <= 0) 
         m_active = false;
 
+
 } 
 
 void Obstacles::draw (SDL_Renderer* m_renderer) 
 {
-    SDL_SetRenderDrawColor(m_renderer, 240, 15, 94, 255); // Verde
-    SDL_RenderFillRect (m_renderer, &m_obstacle);
+    // SDL_SetRenderDrawColor(m_renderer, 240, 15, 94, 255); // Verde
+    // SDL_RenderFillRect (m_renderer, &m_obstacle);
 
-    //! Quando tiver sprites
-    // if (!m_playerTexture) { 
-    //     m_playerTexture = getTexture("src/images/sprites/spaceship/spaceship_teste_2.png", m_renderer);
-    //     if (!m_playerTexture) {
-    //         std::cerr << "Failed to load spaceship texture." << SDL_GetError() << std::endl;
-    //         return;
-    //     }
-    // }
-    // SDL_RenderCopy(m_renderer, m_playerTexture, NULL, &m_player_rect);
+    // ! Quando tiver sprites
+    if (!m_obstacleTexture) { 
+        // m_obstacleTexture = getTexture(spritePath.c_str(), m_renderer);
+        m_obstacleTexture = TextureManager::LoadTexture(spritePath.c_str(), m_renderer);
+        if (!m_obstacleTexture) {
+            std::cerr << "Failed to load spaceship texture." << SDL_GetError() << std::endl;
+            return;
+        }
+    }
+
+    updateFrame();
+
+    SDL_RenderCopy(m_renderer, m_obstacleTexture, &srcRect, &m_obstacle);
 }
+
+void Obstacles::updateFrame() 
+{
+
+    Uint32 currentTime = SDL_GetTicks();
+
+    if (currentTime > lastFrameTime + animationSpeed) {
+        currentFrame = (currentFrame + 1) % maxFrames;
+
+        srcRect.x = currentFrame * frameWidth;
+        // srcRect.x = currentFrame * frameHeight;
+
+        lastFrameTime = currentTime;
+    }
+}
+
 
 
 SDL_Rect Obstacles::getRect () const 
@@ -64,11 +97,11 @@ SDL_Rect Obstacles::getRect () const
     return m_obstacle;
 }
 
-// SDL_Texture* Obstacles::getTexture(const char* filepath, SDL_Renderer* renderer) {
-//     SDL_Texture* m_obstacleTexture = TextureManager::LoadTexture(filepath, renderer);
+SDL_Texture* Obstacles::getTexture(const char* filepath, SDL_Renderer* renderer) {
+    SDL_Texture* m_obstacleTexture = TextureManager::LoadTexture(filepath, renderer);
 
-//     return m_obstacleTexture;
-// }
+    return m_obstacleTexture;
+}
 
 
 

@@ -9,7 +9,6 @@
 #include <SDL2/SDL_image.h>
 
 #define SCREEN_FPS 30
-//Chão == (HEIGHT_WINDOW - m_groundHeight) -  Altura do Player
 
 Game::Game ()
     : 
@@ -20,14 +19,17 @@ Game::Game ()
     spawnTimeInterval(1300), 
     m_startScreen (true), m_gameOverScreen(false),
     m_textTexture(nullptr), m_font(nullptr), 
-    scoreDisplay (1920, 20, 6)
-    // scoreDisplay (1000, 1000, 6, 1920, 1080)
-    , m_HighestScores(0)
+    scoreDisplay (1920, 20, 6),
+    // scoreDisplay (1000, 1000, 6, 1920, 1080), 
+    m_HighestScores(0), 
+    themeSong(nullptr), 
+    treeTexture(nullptr)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
         return;
     }
+
 
     m_window = SDL_CreateWindow("A Midsummer Night's Escape", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_WIDTH_WINDOW, m_HEIGHT_WINDOW, SDL_WINDOW_FULLSCREEN_DESKTOP);
     if (m_window == nullptr) {
@@ -43,7 +45,8 @@ Game::Game ()
 
     m_WIDTH_WINDOW = SDL_GetWindowSurface(m_window)->w;
     m_HEIGHT_WINDOW = SDL_GetWindowSurface(m_window)->h;
-    
+
+    //* ÍCONE
     SDL_Surface* icon = SDL_LoadBMP("./src/images/references/A-Midsummer-Night_s-Escape_Colored.bmp");
     if (icon == nullptr) {
         std::cout << "Nao foi possivel abrir o icone\n";
@@ -51,6 +54,19 @@ Game::Game ()
     }
     SDL_SetWindowIcon(m_window, icon);
     SDL_FreeSurface(icon);
+
+    //* MÚSICA
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer initialization failed: " << Mix_GetError() << std::endl;
+        return;
+    }
+
+    // themeSong = Mix_LoadMUS("src/music/Midsummer's Night Escape Master 16-06-24.wav");
+    // if (!themeSong) {
+    //     std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
+    // }
+    // Mix_PlayMusic(themeSong, -1);
+
 
 
     if (TTF_Init() == -1) {
@@ -65,7 +81,10 @@ Game::Game ()
     m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
     m_ground = {0, groundY, m_WIDTH_WINDOW, m_groundHeight};
 
+    treeBackground = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
+
     m_player = Player(groundY);
+    scoreDisplay  = Score(m_WIDTH_WINDOW, 20, 6);
 
 
     std::vector<Obstacles> vetorObstacles;
@@ -76,6 +95,7 @@ Game::Game ()
     if (m_font == nullptr) {
         std::cerr << "Failed to load font: " << TTF_GetError() << std::endl;
     }
+    textColor = {255, 255, 255, 255};
 
     loadHighestScore();
     std::cout << "Maior score: " << m_HighestScores << std::endl;
@@ -86,6 +106,8 @@ Game::Game ()
 Game::~Game() 
 {
     TTF_Quit();
+    Mix_FreeMusic(themeSong);
+    Mix_CloseAudio();
     SDL_DestroyRenderer(m_renderer);
     SDL_DestroyWindow(m_window);
     SDL_Quit();
@@ -124,7 +146,7 @@ void Game::loadHighestScore()
 void Game::loadDisplayHighestScore ()
 {
     std::string highestScoreMessage = "TOP SCORE: " + std::to_string(m_HighestScores);
-    SDL_Color textColor = {255, 255, 255, 255};
+    // SDL_Color textColor = {255, 255, 255, 255};
     renderText(highestScoreMessage.c_str(), 150, 65, 1.15, textColor);
 }
 
@@ -162,6 +184,7 @@ void Game::run()
                         spawnControllerDiminish = 0;
                         lastTimeSpawned = SDL_GetTicks();
                     } else if (m_gameOverScreen) {
+                        m_player.resetPosition();
                         m_gameOverScreen = false;
                         m_score_player = 0;
                         spawnControllerDiminish = 0;
@@ -255,9 +278,11 @@ void Game::draw(SDL_Renderer* m_render)
 
     SDL_RenderClear(m_render);
     
-    SDL_SetRenderDrawColor(m_renderer, 44, 220, 250, 255); 
-    SDL_RenderFillRect (m_renderer, &m_background);
+    // SDL_SetRenderDrawColor(m_renderer, 44, 220, 250, 255); 
+    // SDL_RenderFillRect (m_renderer, &m_background);
 
+    loadBackground(background_texture, "src/images/sprites/ceulua.png", m_render, m_background);
+    loadBackground(treeTexture, "src/images/sprites/arvore1.png", m_render, treeBackground);
     loadGround(m_render);
 
     if (m_startScreen)
@@ -276,19 +301,28 @@ void Game::draw(SDL_Renderer* m_render)
     scoreDisplay.draw(m_render, m_score_player);
     loadDisplayHighestScore();
 
+    // SDL_RenderPresent(m_render);
+
 }
 
 
-SDL_Texture* Game::loadBackground(const char* filepath, SDL_Renderer* renderer) 
+void Game::loadBackground(SDL_Texture*& texture, const char* filepath, SDL_Renderer* renderer, SDL_Rect srcRect) 
 {
-    SDL_Texture* tex = TextureManager::LoadTexture(filepath, renderer);
-    return tex;
+    if (!texture) {
+        texture = TextureManager::LoadTexture(filepath, renderer);
+        if (!texture) {
+            std::cerr << "Failed to load background texture" << SDL_GetError() << std::endl;
+            return;
+        }
+    }
+    SDL_RenderCopy(renderer, texture, nullptr, &srcRect);
 }
 
 
 void Game::loadGround (SDL_Renderer* m_render) 
 {
-    SDL_SetRenderDrawColor(m_renderer, 250, 255, 255, 255);
+    // SDL_SetRenderDrawColor(m_renderer, 17, 24, 64, 0);
+    SDL_SetRenderDrawColor(m_renderer, 40, 64, 34, 0);
     SDL_RenderFillRect (m_renderer, &m_ground);
 }
 
@@ -300,6 +334,7 @@ void Game::verColisoes()
     {
         if (checkColisao(it->getRect(), m_player.getRect())) {
             m_gameOverScreen = true;
+            m_player.isDead();
             return;
         }
         if (it->getRect().x == 0) {
@@ -360,8 +395,6 @@ void Game::startScreen()
         return;
     }
 
-    SDL_Color textColor = {0, 0, 0, 0};
-
     const char* startMessage = "Press SPACE to Start";
 
     SDL_Surface* textSurface = TTF_RenderText_Solid(m_font, startMessage, textColor);
@@ -394,7 +427,7 @@ void Game::gameOverScreen()
         return;
     }
 
-    SDL_Color textColor = {0, 0, 0, 255};
+    // SDL_Color textColor = {0, 0, 0, 255};
 
     const char* lines[] = {
         "Game Over!",

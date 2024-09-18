@@ -12,6 +12,7 @@ private:
     float jumpVelocity;
     float gravityUp;
     float gravityDown;
+    bool isAlive;
 
 public:
     Player(int pos_chao);
@@ -21,6 +22,7 @@ public:
     void draw(SDL_Renderer* m_renderer);
     bool isJumping;
     bool m_GoDown;
+    void isDead();
 
     void resetPosition();
     
