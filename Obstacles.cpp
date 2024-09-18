@@ -5,7 +5,7 @@
 
 
 Obstacles::Obstacles(int posX, int posY, int tipo) : m_speed(25), m_obstacleTexture(nullptr), m_active(true), m_spawn_pos (posY), m_Tipo(tipo), m_time (0),
-currentFrame(0), maxFrames(2), animationSpeed(600), lastFrameTime(0)
+currentFrame(0), maxFrames(2), animationSpeed(300), lastFrameTime(0)
 {
     // x, y, w, h
     
@@ -15,15 +15,16 @@ currentFrame(0), maxFrames(2), animationSpeed(600), lastFrameTime(0)
         // m_obstacle = {posX, posY + 40, 40, 40};
         frameHeight = 40;
         frameWidth = 40;
-        m_obstacle = {posX, posY - 40, frameHeight, frameWidth};
+        m_obstacle = {posX, posY - 40, frameWidth, frameHeight};
         spritePath = "src/images/sprites/fireballsheet.png";
         break;
     
     case (2): // Roseira
         // m_obstacle = {posX, posY + 20 + 60, 180, 60};
-        frameHeight = 210;
-        frameWidth = 60;
-        m_obstacle = {posX, posY - 60, frameHeight, frameWidth};
+        frameHeight = 60;
+        frameWidth = 210;
+        // m_obstacle = {posX, posY - 60, frameHeight, frameWidth};
+        m_obstacle = {posX, posY - 60, frameWidth, frameHeight};
         spritePath = "src/images/sprites/roseirasheet.png";
         break;
     case (3): // Cogumelo
@@ -31,7 +32,7 @@ currentFrame(0), maxFrames(2), animationSpeed(600), lastFrameTime(0)
         frameHeight = 100;
         frameWidth = 100;
         spritePath = "src/images/sprites/cogumelosheet.png";
-        m_obstacle = {posX, posY - 100, frameHeight, frameWidth};
+        m_obstacle = {posX, posY - 100, frameWidth, frameHeight};
         break;
     default:
         break;
@@ -84,7 +85,6 @@ void Obstacles::updateFrame()
         currentFrame = (currentFrame + 1) % maxFrames;
 
         srcRect.x = currentFrame * frameWidth;
-        // srcRect.x = currentFrame * frameHeight;
 
         lastFrameTime = currentTime;
     }

@@ -56,6 +56,7 @@ private:
     SDL_Texture* treeTexture;
     void loadGround (SDL_Renderer* m_renderer);
     void loadBackground(SDL_Texture*& texture, const char* filepath, SDL_Renderer* renderer, SDL_Rect srcRect);
+    SDL_Texture* groundTexture;
 
     int  m_score_player;
     int randomIntGenerator(int min, int max);

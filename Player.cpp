@@ -7,25 +7,24 @@
 // maxJumpHeight: Define a altura máxima que o jogador pode alcançar (não usada diretamente no cálculo neste exemplo, mas pode ser útil para ajustes futuros).
 
 
-Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.5f), isAlive(true)
+Player::Player(int pos_chao) : m_playerTexture(nullptr), isJumping(false), m_GoDown(false), jumpVelocity(0.0f), gravityUp(1.1f), gravityDown(1.5f), isAlive(true), isEscaping(false), 
+frameHeight(160), frameWidth(100), maxFrames(2), animationSpeed(300), lastFrameTime(0), currentFrame(0)
 {
+    // x, y,  w, h;
 
     int relative_ground = pos_chao - 160;
-
-    m_player_rect = {300, pos_chao, 100, 160};
-
+    m_player_rect = {300, pos_chao, frameWidth, frameHeight};
     m_pos_chao = relative_ground;
 
-    std::cout << "Puck Criado!\n";
     maxJumpHeight = m_pos_chao - (m_player_rect.h - 100);
 
-    std::cout << "Max Jump Height: " << maxJumpHeight << std::endl;
+    srcRect = {0, 0, frameWidth, frameHeight};
 }
 
 void Player::draw(SDL_Renderer* m_renderer) 
 {
-    //* Animation
     //* Base
+    //* Animation
     //* Jump
     //* Death
 
@@ -39,6 +38,8 @@ void Player::draw(SDL_Renderer* m_renderer)
         spritePath = "src/images/sprites/puckdeath.png";
     } else if (isJumping) {
         spritePath = "src/images/sprites/puckjump.png";
+    } else if (isEscaping) {
+        spritePath = "src/images/sprites/puckrunsheet.png";
     } else {
         spritePath = "src/images/sprites/puckbase.png";
     }
@@ -49,7 +50,27 @@ void Player::draw(SDL_Renderer* m_renderer)
         return;
     }
 
-    SDL_RenderCopy(m_renderer, m_playerTexture, nullptr, &m_player_rect);
+    if (isEscaping && !isJumping) {
+        updateFrame();
+    } else {
+        srcRect.x = 0;
+    }
+
+    SDL_RenderCopy(m_renderer, m_playerTexture, &srcRect, &m_player_rect);
+}
+
+
+void Player::updateFrame() 
+{
+    Uint32 currentTime = SDL_GetTicks();
+
+    if (currentTime > lastFrameTime + animationSpeed) {
+        currentFrame = (currentFrame + 1) % maxFrames;
+
+        srcRect.x = currentFrame * frameWidth;
+
+        lastFrameTime = currentTime;
+    }
 }
 
 void Player::jump (bool spacePressed) 
@@ -115,9 +136,21 @@ void Player::resetPosition()
     m_player_rect.x = 300;
     m_player_rect.y = m_pos_chao;
     isAlive = true;
+    isEscaping = false;
 }
 
 void Player::isDead() 
 {
     isAlive = false;
+    isEscaping = false;
+}
+
+void Player::startEscaping()
+{
+    isEscaping = true;
+}
+
+bool Player::getEscaping() const
+{
+    return isEscaping;
 }
