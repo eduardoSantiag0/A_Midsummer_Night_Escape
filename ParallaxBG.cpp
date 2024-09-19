@@ -41,3 +41,16 @@ void ParallaxBG::draw()
         SDL_RenderCopy(m_renderer, m_treeTextures[i], NULL, &treeBackgrounds[i * 2 + 1]); 
     }
 }
+
+void ParallaxBG::resetPosition()
+{
+    for (size_t i = 0; i < treeBackgrounds.size(); i++) {
+        if (i % 2 == 0) {
+            // Reset even indices to start position
+            treeBackgrounds[i].x = 0;
+        } else {
+            // Reset odd indices to the right end of the screen
+            treeBackgrounds[i].x = m_WIDTH_WINDOW;
+        }
+    }
+}

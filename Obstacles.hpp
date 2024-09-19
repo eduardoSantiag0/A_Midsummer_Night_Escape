@@ -27,6 +27,10 @@ private:
     Uint32 lastFrameTime;
     SDL_Texture* getTexture (const char* filepath, SDL_Renderer* renderer);
 
+    SDL_Rect spriteRect;
+    SDL_Rect hitboxRect;
+
+
     void updateFrame();
 public:
     Obstacles(int posX, int posY, int tipo);

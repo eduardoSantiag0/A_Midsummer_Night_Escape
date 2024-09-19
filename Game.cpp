@@ -58,23 +58,25 @@ Game::Game ()
 
     //* MÚSICA
     //todo Descomentar
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        std::cerr << "SDL_mixer initialization failed: " << Mix_GetError() << std::endl;
-        return;
-    }
+    // if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+    //     std::cerr << "SDL_mixer initialization failed: " << Mix_GetError() << std::endl;
+    //     return;
+    // }
  
-    themeSong = Mix_LoadMUS("src/music/Midsummer's Night Escape Master 16-06-24.wav");
-    if (!themeSong) {
-        std::cerr << "Failed to get background music: " << Mix_GetError() << std::endl;
-    }
+    // themeSong = Mix_LoadMUS("src/music/Midsummer's Night Escape Master 16-06-24.wav");
+    // if (!themeSong) {
+    //     std::cerr << "Failed to get background music: " << Mix_GetError() << std::endl;
+    // }
 
-    Mix_VolumeMusic(20); 
+    // Mix_VolumeMusic(20); 
 
     // Mix_PlayMusic(themeSong, -1);
-    if (Mix_PlayMusic(themeSong, -1) == -1) {
-        std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
-        return;
-    }
+
+    
+    // if (Mix_PlayMusic(themeSong, -1) == -1) {
+    //     std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
+    //     return;
+    // }
 
 
     if (TTF_Init() == -1) {
@@ -110,8 +112,8 @@ Game::Game ()
 
     parallaxBG = ParallaxBG (m_WIDTH_WINDOW, m_HEIGHT_WINDOW, groundY, m_renderer, groundScrollSpeed);
 
-    for (int i = 0; i < 2; ++i) {
-        SDL_Rect groundSegment = {i * m_WIDTH_WINDOW + 1, m_groundHeight - 200, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
+    for (int i = 0; i < 3; ++i) {
+        SDL_Rect groundSegment = {i * m_WIDTH_WINDOW, m_groundHeight - 200, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
         groundArray.push_back(groundSegment);
     }
 
@@ -194,6 +196,7 @@ void Game::run()
                 case SDLK_SPACE:
                     if (m_startScreen) {
                         m_player.resetPosition();
+                        parallaxBG.resetPosition();
                         m_startScreen = false;
                         m_score_player = 0;
                         spawnControllerDiminish = 0;
@@ -205,6 +208,7 @@ void Game::run()
                         spawnControllerDiminish = 0;
                         lastTimeSpawned = SDL_GetTicks();
                         vetorObstacles.clear();
+
                         if (m_score_player > m_HighestScores) 
                             updateHighestScore();
                     } else if (!spacePressed) {
@@ -538,6 +542,5 @@ void Game::moveGround()
         if (ground.x + ground.w < 0) {
             ground.x = groundArray.back().x + ground.w;
         }
-    }
-    
+    }   
 }

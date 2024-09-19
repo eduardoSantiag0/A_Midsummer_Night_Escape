@@ -15,24 +15,28 @@ currentFrame(0), maxFrames(2), animationSpeed(300), lastFrameTime(0)
         // m_obstacle = {posX, posY + 40, 40, 40};
         frameHeight = 40;
         frameWidth = 40;
-        m_obstacle = {posX, posY - 40, frameWidth, frameHeight};
+        hitboxRect = {posX, posY - 40, frameWidth - 10, frameHeight - 10}; // Slightly smaller hitbox
+        spriteRect = {posX, posY - 30, frameWidth, frameHeight};  
+        // m_obstacle = {posX, posY - 40, frameWidth, frameHeight};
         spritePath = "src/images/sprites/fireballsheet.png";
         break;
     
     case (2): // Roseira
-        // m_obstacle = {posX, posY + 20 + 60, 180, 60};
         frameHeight = 60;
         frameWidth = 210;
-        // m_obstacle = {posX, posY - 60, frameHeight, frameWidth};
-        m_obstacle = {posX, posY - 60, frameWidth, frameHeight};
+        hitboxRect = {posX, posY - 60, frameWidth - 20, frameHeight - 10};  // Smaller hitbox
+        spriteRect = {posX, posY - 50, frameWidth, frameHeight}; 
+        // m_obstacle = {posX, posY - 60, frameWidth, frameHeight};
         spritePath = "src/images/sprites/roseirasheet.png";
         break;
     case (3): // Cogumelo
-        // m_obstacle = {posX, posY - 20, 100, 100};
         frameHeight = 100;
         frameWidth = 100;
         spritePath = "src/images/sprites/cogumelosheet.png";
-        m_obstacle = {posX, posY - 100, frameWidth, frameHeight};
+
+        hitboxRect = {posX, posY - 100, frameWidth - 10, frameHeight - 10}; // Slightly smaller hitbox
+        spriteRect = {posX, posY - 90, frameWidth, frameHeight};   
+        // m_obstacle = {posX, posY - 100, frameWidth, frameHeight};
         break;
     default:
         break;
@@ -47,10 +51,13 @@ void Obstacles::move()
     if (m_Tipo == 1) {
         senoidalMovement();
     } else {
-        m_obstacle.x -= m_speed;
+        // m_obstacle.x -= m_speed;
+        hitboxRect.x -= m_speed;
+        spriteRect.x -= m_speed; // Move spriteRect as well
     }
 
-    if (m_obstacle.x + m_obstacle.w <= 0) 
+    // if (m_obstacle.x + m_obstacle.w <= 0) 
+    if (hitboxRect.x + hitboxRect.w <= 0) 
         m_active = false;
 
 
@@ -68,7 +75,8 @@ void Obstacles::draw (SDL_Renderer* m_renderer)
 
     updateFrame();
 
-    SDL_RenderCopy(m_renderer, m_obstacleTexture, &srcRect, &m_obstacle);
+    // SDL_RenderCopy(m_renderer, m_obstacleTexture, &srcRect, &m_obstacle);
+    SDL_RenderCopy(m_renderer, m_obstacleTexture, &srcRect, &spriteRect);
 }
 
 void Obstacles::updateFrame() 
@@ -89,7 +97,8 @@ void Obstacles::updateFrame()
 
 SDL_Rect Obstacles::getRect () const 
 {
-    return m_obstacle;
+    // return m_obstacle;
+    return hitboxRect;
 }
 
 SDL_Texture* Obstacles::getTexture(const char* filepath, SDL_Renderer* renderer) {

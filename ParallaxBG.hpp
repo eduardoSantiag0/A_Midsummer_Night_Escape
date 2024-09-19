@@ -18,4 +18,5 @@ public:
     ParallaxBG(int m_WIDTH_WINDOW, int m_HEIGHT_WINDOW, int groundY, SDL_Renderer* renderer, int speed);
     void move();
     void draw();
+    void resetPosition();
 };
