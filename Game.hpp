@@ -45,7 +45,7 @@ private:
 
     Player m_player;
 
-    SDL_Rect m_ground;
+    // SDL_Rect m_ground;
     int m_groundHeight;
     int groundY;
 
@@ -54,7 +54,6 @@ private:
     SDL_Texture* background_texture;
     SDL_Rect treeBackground;
     SDL_Texture* treeTexture;
-    void loadGround (SDL_Renderer* m_renderer);
     void loadBackground(SDL_Texture*& texture, const char* filepath, SDL_Renderer* renderer, SDL_Rect srcRect);
     SDL_Texture* groundTexture;
 
@@ -79,7 +78,10 @@ private:
 
     std::vector<SDL_Rect> treeBackgrounds;
 
-    // ParallaxBG parallaxBG(int m_WIDTH_WINDOW, int m_HEIGHT_WINDOW, int groundY, SDL_Renderer* renderer);
     ParallaxBG parallaxBG;
+
+    void moveGround();
+    std::vector<SDL_Rect> groundArray;
+    int groundScrollSpeed;
 
 };

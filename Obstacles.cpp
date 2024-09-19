@@ -58,12 +58,7 @@ void Obstacles::move()
 
 void Obstacles::draw (SDL_Renderer* m_renderer) 
 {
-    // SDL_SetRenderDrawColor(m_renderer, 240, 15, 94, 255); // Verde
-    // SDL_RenderFillRect (m_renderer, &m_obstacle);
-
-    // ! Quando tiver sprites
     if (!m_obstacleTexture) { 
-        // m_obstacleTexture = getTexture(spritePath.c_str(), m_renderer);
         m_obstacleTexture = TextureManager::LoadTexture(spritePath.c_str(), m_renderer);
         if (!m_obstacleTexture) {
             std::cerr << "Failed to load spaceship texture." << SDL_GetError() << std::endl;
@@ -111,7 +106,6 @@ void Obstacles::senoidalMovement()
     
     m_time += 0.1;
     
-    // m_obstacle.y = m_spawn_pos + 30 * std::sin(m_time);
     m_obstacle.y = (m_spawn_pos - 100) + 30 * std::sin(m_time);
 
 }

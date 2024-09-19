@@ -22,8 +22,9 @@ Game::Game ()
     m_HighestScores(0), 
     themeSong(nullptr), 
     treeTexture(nullptr), 
-    groundTexture(nullptr)
-    , parallaxBG(0, 0, 0, nullptr)
+    groundTexture(nullptr), 
+    parallaxBG(0, 0, 0, nullptr, 0), 
+    groundScrollSpeed(10)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -57,20 +58,23 @@ Game::Game ()
 
     //* MÚSICA
     //todo Descomentar
-    // if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-    //     std::cerr << "SDL_mixer initialization failed: " << Mix_GetError() << std::endl;
-    //     return;
-    // }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer initialization failed: " << Mix_GetError() << std::endl;
+        return;
+    }
  
-    // themeSong = Mix_LoadMUS("src/music/Midsummer's Night Escape Master 16-06-24.wav");
-    // if (!themeSong) {
-    //     std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
-    // }
+    themeSong = Mix_LoadMUS("src/music/Midsummer's Night Escape Master 16-06-24.wav");
+    if (!themeSong) {
+        std::cerr << "Failed to get background music: " << Mix_GetError() << std::endl;
+    }
 
-    // //todo ERROR
-    // if (!Mix_PlayMusic(themeSong, -1)) {
-    //     std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
-    // }
+    Mix_VolumeMusic(20); 
+
+    // Mix_PlayMusic(themeSong, -1);
+    if (Mix_PlayMusic(themeSong, -1) == -1) {
+        std::cerr << "Failed to load background music: " << Mix_GetError() << std::endl;
+        return;
+    }
 
 
     if (TTF_Init() == -1) {
@@ -82,11 +86,11 @@ Game::Game ()
     groundY = (m_HEIGHT_WINDOW * 2) / 3;
     m_groundHeight = m_HEIGHT_WINDOW - groundY; 
 
-    m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
-    treeBackground = {0, 0, m_WIDTH_WINDOW, groundY};
+    // m_background = {0, 0, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
+    m_background = {0, 0, m_WIDTH_WINDOW, groundY};
     
-    //todo Arrumar Chão
-    m_ground = {0, m_groundHeight - 150, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
+
+    // m_ground = {0, m_groundHeight - 200, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
 
     m_player = Player(groundY);
     scoreDisplay  = Score(m_WIDTH_WINDOW, 20, 6);
@@ -104,13 +108,12 @@ Game::Game ()
 
     loadHighestScore();
 
-    // for (int i = 0; i < 3; i++) {
-    //     SDL_Rect treeLayer = {0, 0, m_WIDTH_WINDOW, groundY};
-    //     treeBackgrounds.push_back(treeLayer);
-    // }
+    parallaxBG = ParallaxBG (m_WIDTH_WINDOW, m_HEIGHT_WINDOW, groundY, m_renderer, groundScrollSpeed);
 
-    parallaxBG = ParallaxBG (m_WIDTH_WINDOW, m_HEIGHT_WINDOW, groundY, m_renderer);
-    
+    for (int i = 0; i < 2; ++i) {
+        SDL_Rect groundSegment = {i * m_WIDTH_WINDOW + 1, m_groundHeight - 200, m_WIDTH_WINDOW, m_HEIGHT_WINDOW};
+        groundArray.push_back(groundSegment);
+    }
 
 }
 
@@ -235,10 +238,14 @@ void Game::run()
             }
         }
 
+        if (m_player.getEscaping()) {
+            parallaxBG.move();
+            moveGround();
+        }
+            
 
         if (!m_gameOverScreen) {
             draw(m_renderer);
-
 
             if (m_player.isJumping)
                 m_player.jump(spacePressed); 
@@ -262,7 +269,6 @@ void Game::run()
                 obstacle.move();
             }
 
-            parallaxBG.move();
 
             verColisoes();
 
@@ -289,29 +295,21 @@ void Game::draw(SDL_Renderer* m_render)
 
     SDL_RenderClear(m_render);
     
-    // SDL_SetRenderDrawColor(m_renderer, 44, 220, 250, 255); 
-    // SDL_RenderFillRect (m_renderer, &m_background);
-
     loadBackground(background_texture, "src/images/sprites/ceulua.png", m_render, m_background);
-    loadBackground(groundTexture, "src/images/sprites/chao2.png", m_render, m_ground);
-
-    loadBackground(treeTexture, "src/images/sprites/arvore2.png", m_render, treeBackground);
     
-    // for (size_t i = 0; i < treeBackgrounds.size(); ++i) {
-    //     loadBackground(treeTexture, "src/images/sprites/arvore2.png", m_render, treeBackground);
-    //     treeBackgrounds[i].x -= 10;
+    parallaxBG.draw();
 
-    //     if (treeBackgrounds[i].x + treeBackgrounds[i].w <= 0) {
-    //         treeBackgrounds[i].x = 0;
-    //     }
-    // } 
+    // loadBackground(groundTexture, "src/images/sprites/chao2.png", m_render, m_ground);
+    for (const auto &ground : groundArray) 
+    {
+        loadBackground(groundTexture, "src/images/sprites/chao2.png", m_render, ground);
+    }
 
 
     if (m_startScreen)
         startScreen();
     else if (m_gameOverScreen)
         gameOverScreen();
-
 
     m_player.draw(m_render);
     
@@ -322,7 +320,6 @@ void Game::draw(SDL_Renderer* m_render)
 
     scoreDisplay.draw(m_render, m_score_player);
     loadDisplayHighestScore();
-    parallaxBG.draw();
 
     SDL_RenderPresent(m_render);
 
@@ -344,14 +341,6 @@ void Game::loadBackground(SDL_Texture*& texture, const char* filepath, SDL_Rende
     }
 }
 
-
-void Game::loadGround (SDL_Renderer* m_render) 
-{
-    // SDL_SetRenderDrawColor(m_renderer, 17, 24, 64, 0);
-    // SDL_SetRenderDrawColor(m_renderer, 40, 64, 34, 0);
-    SDL_SetRenderDrawColor(m_renderer, 14, 20, 38, 0);
-    SDL_RenderFillRect (m_renderer, &m_ground);
-}
 
 void Game::verColisoes() 
 {
@@ -538,4 +527,17 @@ void Game::renderText(const char* message, int x, int y, float scale, SDL_Color 
     SDL_RenderCopy(m_renderer, textTexture, nullptr, &textRect);
     SDL_DestroyTexture(textTexture);
     SDL_FreeSurface(textSurface);
+}
+
+
+void Game::moveGround() 
+{
+    for (auto &ground : groundArray) {
+        ground.x -= groundScrollSpeed; 
+        
+        if (ground.x + ground.w < 0) {
+            ground.x = groundArray.back().x + ground.w;
+        }
+    }
+    
 }
