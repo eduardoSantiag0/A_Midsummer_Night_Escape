@@ -1,9 +1,6 @@
 #include <iostream>
 #include "SDL2/SDL.h"
 
-//todo Mudar construtor de Obstáculos
-//todo Gerador de numeros
-
 class Obstacles
 {
 private:

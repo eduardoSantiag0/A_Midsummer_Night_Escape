@@ -23,6 +23,7 @@ Game::Game ()
     themeSong(nullptr), 
     treeTexture(nullptr), 
     groundTexture(nullptr)
+    , parallaxBG(0, 0, 0, nullptr)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -102,6 +103,14 @@ Game::Game ()
     textColor = {255, 255, 255, 255};
 
     loadHighestScore();
+
+    // for (int i = 0; i < 3; i++) {
+    //     SDL_Rect treeLayer = {0, 0, m_WIDTH_WINDOW, groundY};
+    //     treeBackgrounds.push_back(treeLayer);
+    // }
+
+    parallaxBG = ParallaxBG (m_WIDTH_WINDOW, m_HEIGHT_WINDOW, groundY, m_renderer);
+    
 
 }
 
@@ -253,6 +262,8 @@ void Game::run()
                 obstacle.move();
             }
 
+            parallaxBG.move();
+
             verColisoes();
 
         } else {
@@ -282,9 +293,19 @@ void Game::draw(SDL_Renderer* m_render)
     // SDL_RenderFillRect (m_renderer, &m_background);
 
     loadBackground(background_texture, "src/images/sprites/ceulua.png", m_render, m_background);
-    loadBackground(treeTexture, "src/images/sprites/arvore2.png", m_render, treeBackground);
     loadBackground(groundTexture, "src/images/sprites/chao2.png", m_render, m_ground);
-    // loadGround(m_render);
+
+    loadBackground(treeTexture, "src/images/sprites/arvore2.png", m_render, treeBackground);
+    
+    // for (size_t i = 0; i < treeBackgrounds.size(); ++i) {
+    //     loadBackground(treeTexture, "src/images/sprites/arvore2.png", m_render, treeBackground);
+    //     treeBackgrounds[i].x -= 10;
+
+    //     if (treeBackgrounds[i].x + treeBackgrounds[i].w <= 0) {
+    //         treeBackgrounds[i].x = 0;
+    //     }
+    // } 
+
 
     if (m_startScreen)
         startScreen();
@@ -301,6 +322,7 @@ void Game::draw(SDL_Renderer* m_render)
 
     scoreDisplay.draw(m_render, m_score_player);
     loadDisplayHighestScore();
+    parallaxBG.draw();
 
     SDL_RenderPresent(m_render);
 

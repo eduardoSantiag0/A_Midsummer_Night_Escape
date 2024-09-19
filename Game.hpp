@@ -6,7 +6,7 @@
 #include <SDL2/SDL_mixer.h>
 #include "Score.hpp"
 #include <fstream>
-
+#include "ParallaxBG.hpp"
 
 class Game 
 {
@@ -77,5 +77,9 @@ private:
     Mix_Music* themeSong;
 
 
+    std::vector<SDL_Rect> treeBackgrounds;
+
+    // ParallaxBG parallaxBG(int m_WIDTH_WINDOW, int m_HEIGHT_WINDOW, int groundY, SDL_Renderer* renderer);
+    ParallaxBG parallaxBG;
 
 };
