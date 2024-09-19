@@ -203,6 +203,7 @@ void Game::run()
                         lastTimeSpawned = SDL_GetTicks();
                     } else if (m_gameOverScreen) {
                         m_player.resetPosition();
+                        resetGround();
                         m_gameOverScreen = false;
                         m_score_player = 0;
                         spawnControllerDiminish = 0;
@@ -539,8 +540,22 @@ void Game::moveGround()
     for (auto &ground : groundArray) {
         ground.x -= groundScrollSpeed; 
         
-        if (ground.x + ground.w < 0) {
+        if (ground.x + ground.w <= 0) {
             ground.x = groundArray.back().x + ground.w;
         }
     }   
+}
+
+
+void Game::resetGround()
+{
+    for (size_t i = 0; i < groundArray.size(); i++) {
+        if (i == 0) {
+            // Reset even indices to start position
+            groundArray[i].x = 0;
+        } else {
+            // Reset odd indices to the right end of the screen
+            groundArray[i].x = m_WIDTH_WINDOW;
+        }
+    }
 }

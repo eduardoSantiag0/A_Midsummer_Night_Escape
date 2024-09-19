@@ -83,5 +83,6 @@ private:
     void moveGround();
     std::vector<SDL_Rect> groundArray;
     int groundScrollSpeed;
+    void  resetGround();
 
 };
