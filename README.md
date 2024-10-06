@@ -23,6 +23,22 @@ The project is a game set in the fictional world of William Shakespeare's "**A M
 
 - **Puck's Challenge :** The enchanted forest becomes a constantly changing labyrinth, filled with magical obstacles and treacherous terrain. Puck must navigate this unpredictable realm, avoiding traps and overcoming magical obstacles to survive Titania's wrath.
 
+## Sprites :
+<div> 
+    <img src="src/images/sprites/puckbase.png" alt="Puck" width="100" style="margin-right: 20px;">
+    <img src="src/images/screenshots/roseirasheet-readme.png" alt="Puck" width="200">
+    <img src="src/images/screenshots/cogumelosheet-readme.png" alt="Puck" width="100">
+    <img src="src/images/screenshots/fireballsheet-readme.png" alt="Puck" width="100">
+    <img src="src/images/screenshots/arvore0-readme.png" alt="Puck" width="300">
+    <img src="src/images/screenshots/ceulua-readme.png" alt="Puck" width="300">
+
+<div>
+
+
 ## Gameplay :
 As the player takes on the role of Puck, they must navigate through the chaotic and ever-changing enchanted forest. The game offers a fast-paced and challenging experience, where quick reflexes and strategic decision-making are essential for survival.
 - Use the SPACEBAR to jump and avoid getting hit.
+
+## Screenshots : 
+<img src="src/images/screenshots/Screenshot-Gameplay.png" alt="Screenshot 01" width="800">
+<img src="src/images/screenshots/Screenshot-GameOverScreen.png" alt="Screenshot 02" width="800">
