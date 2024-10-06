@@ -26,3 +26,7 @@ The project is a game set in the fictional world of William Shakespeare's "**A M
 ## Gameplay :
 As the player takes on the role of Puck, they must navigate through the chaotic and ever-changing enchanted forest. The game offers a fast-paced and challenging experience, where quick reflexes and strategic decision-making are essential for survival.
 - Use the SPACEBAR to jump and avoid getting hit.
+
+## Screenshots : 
+<img src="src/images/screenshots/Screenshot-Gameplay.png" alt="Screenshot 01" width="800">
+<img src="src/images/screenshots/Screenshot-GameOverScreen.png" alt="Screenshot 02" width="800">
